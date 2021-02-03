@@ -85,6 +85,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductDto> findAllByCodes(List<String> codes) {
+        List<ProductDto> products = productRepository.findAllByCodeIn(codes).stream()
+                .map(this::createDtoFromEntity)
+                .collect(Collectors.toList());
+        log.info("Found {} product(s)", products.size());
+        return products;
+    }
+
+    @Override
     @Transactional
     public void deleteProduct(String code) {
         Product product = getProductByCodeOrElseThrow(code);

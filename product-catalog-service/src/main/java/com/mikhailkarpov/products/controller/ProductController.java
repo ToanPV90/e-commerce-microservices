@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -65,7 +66,13 @@ public class ProductController {
 
     @GetMapping("/products/search")
     public List<ProductDto> searchProducts(@RequestParam @Size(min = 2) String query) {
-        log.info("Request for searching products: {}", query);
+        log.info("Request to search products: {}", query);
         return productService.search(query);
+    }
+
+    @GetMapping("/products/list")
+    public List<ProductDto> findProductsByCodes(@RequestBody @NotEmpty List<String> codes) {
+        log.info("Request for products by codes: {}", codes);
+        return productService.findAllByCodes(codes);
     }
 }

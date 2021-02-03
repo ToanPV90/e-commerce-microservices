@@ -14,4 +14,6 @@ public interface ProductRepository extends CrudRepository<Product, UUID> {
     Optional<Product> findByCode(String code);
 
     List<Product> findAllByNameContaining(String name);
+
+    List<Product> findAllByCodeIn(List<String> codes);
 }
