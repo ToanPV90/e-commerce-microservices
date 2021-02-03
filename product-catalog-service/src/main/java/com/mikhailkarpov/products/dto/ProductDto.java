@@ -31,5 +31,9 @@ public class ProductDto {
 
     @NotNull
     @Min(0)
+    private Integer price;
+
+    @NotNull
+    @Min(0)
     private Integer amount;
 }

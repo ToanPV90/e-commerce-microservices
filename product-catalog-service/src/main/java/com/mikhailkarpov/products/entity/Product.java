@@ -1,7 +1,5 @@
 package com.mikhailkarpov.products.entity;
 
-import org.hibernate.annotations.NaturalId;
-
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -13,7 +11,7 @@ public class Product {
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", unique = true)
     private String code;
 
     @Column(name = "name", nullable = false)
@@ -22,6 +20,9 @@ public class Product {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "price", nullable = false)
+    private Integer price;
+
     @Column(name = "amount", nullable = false)
     private Integer amount;
 
@@ -29,10 +30,11 @@ public class Product {
         // for JPA
     }
 
-    public Product(String code, String name, String description, Integer amount) {
+    public Product(String code, String name, String description, Integer price, Integer amount) {
         this.code = code;
         this.name = name;
         this.description = description;
+        this.price = price;
         this.amount = amount;
     }
 
@@ -42,6 +44,10 @@ public class Product {
 
     public String getCode() {
         return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -58,6 +64,14 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 
     public Integer getAmount() {

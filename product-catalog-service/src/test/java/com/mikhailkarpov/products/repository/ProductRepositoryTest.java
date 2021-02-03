@@ -26,9 +26,9 @@ class ProductRepositoryTest {
 
     @BeforeEach
     void initProducts() {
-        entityManager.persist(new Product("ABC", "product 1", "description 1", 11));
-        entityManager.persist(new Product("DEF", "product 2", "description 2", 12));
-        entityManager.persist(new Product("ABC DEF", "prod 3", "description 3", 13));
+        entityManager.persist(new Product("ABC", "product 1", "description 1", 110, 11));
+        entityManager.persist(new Product("DEF", "product 2", "description 2", 120, 12));
+        entityManager.persist(new Product("ABC DEF", "prod 3", "description 3", 130, 13));
         entityManager.flush();
     }
 
@@ -66,7 +66,7 @@ class ProductRepositoryTest {
     @Test
     void findAllByCodeIn() {
         // when
-        List<Product> products = productRepository.findAllByCodeIn(Arrays.asList("ABC", "DEF"));
+        List<Product> products = productRepository.findAllByCodeIn(Arrays.asList("ABC", "DEF", "ABC"));
 
         // then
         assertEquals(2, products.size());

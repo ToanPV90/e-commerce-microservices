@@ -34,9 +34,10 @@ public class ProductServiceImpl implements ProductService {
 
         String name = product.getName();
         String description = product.getDescription();
+        Integer price = product.getPrice();
         Integer amount = product.getAmount();
 
-        Product created = productRepository.save(new Product(code, name, description, amount));
+        Product created = productRepository.save(new Product(code, name, description, price, amount));
         log.info("Creating product: {}", created);
 
         product.setId(created.getId());
@@ -116,6 +117,7 @@ public class ProductServiceImpl implements ProductService {
                 .code(product.getCode())
                 .name(product.getName())
                 .description(product.getDescription())
+                .price(product.getPrice())
                 .amount(product.getAmount())
                 .build();
     }
