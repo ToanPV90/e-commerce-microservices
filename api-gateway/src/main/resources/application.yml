@@ -15,4 +15,10 @@ zuul:
   routes:
     product-catalog-service:
       path: /products/**
+      serviceId: product-catalog-service
+      stripPrefix: false
+
+    order-service:
+      path: /orders/**
+      serviceId: order-service
       stripPrefix: false

@@ -44,6 +44,7 @@
         <module>api-gateway</module>
         <module>service-registry</module>
         <module>product-catalog-service</module>
+        <module>order-service</module>
     </modules>
 
 </project>
