@@ -71,8 +71,8 @@ public class ProductController {
     }
 
     @GetMapping("/products/list")
-    public List<ProductDto> findProductsByCodes(@RequestBody @NotEmpty List<String> codes) {
-        log.info("Request for products by codes: {}", codes);
-        return productService.findAllByCodes(codes);
+    public List<ProductDto> findProductsByCodes(@RequestParam @NotEmpty List<String> code) {
+        log.info("Request for products by code: {}", code);
+        return productService.findAllByCodes(code);
     }
 }
