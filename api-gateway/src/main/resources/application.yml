@@ -24,6 +24,11 @@ zuul:
       serviceId: auth-service
       stripPrefix: false
 
+    customers:
+      path: /customers/**
+      serviceId: customer-service
+      stripPrefix: false
+
     products:
       path: /products/**
       serviceId: product-catalog-service

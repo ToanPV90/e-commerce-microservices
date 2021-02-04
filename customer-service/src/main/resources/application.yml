@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: customer-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/customer_service
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+server:
+  port: 0
+  servlet:
+    context-path: /customers
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+security:
+  oauth2:
+    client:
+      client-id: customer-service
+      client-secret: customer-service-secret
+      access-token-uri: http://localhost:9000/oauth/token
+      scope: server
+    resource:
+      token-info-uri: http://localhost:9000/oauth/check_token
