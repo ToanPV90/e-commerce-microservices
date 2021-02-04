@@ -11,14 +11,25 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 zuul:
-  ignored-services: '*'
+  ignoredServices: '*'
+  sensitive-headers: Cookie,Set-Cookie
   routes:
-    product-catalog-service:
+    users:
+      path: /users/**
+      serviceId: auth-service
+      stripPrefix: false
+
+    oauth:
+      path: /oauth/**
+      serviceId: auth-service
+      stripPrefix: false
+
+    products:
       path: /products/**
       serviceId: product-catalog-service
       stripPrefix: false
 
-    order-service:
+    orders:
       path: /orders/**
       serviceId: order-service
       stripPrefix: false
