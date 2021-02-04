@@ -1,8 +1,6 @@
 package com.mikhailkarpov.auth.config;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,16 +32,29 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        //@formatter:off
         clients.inMemory()
                 .withClient("web-client")
-                .secret(passwordEncoder.encode("web-client-secret"))
-                .authorizedGrantTypes("password")
-                .scopes("web")
-                .and()
+                    .secret(passwordEncoder.encode("web-client-secret"))
+                    .authorizedGrantTypes("password")
+                    .scopes("web")
+                    .and()
                 .withClient("customer-service")
-                .secret(passwordEncoder.encode("customer-service-secret"))
-                .authorizedGrantTypes("client_credentials")
-                .scopes("server");
+                    .secret(passwordEncoder.encode("customer-service-secret"))
+                    .authorizedGrantTypes("client_credentials")
+                    .scopes("server")
+                    .and()
+                .withClient("product-catalog-service")
+                    .secret(passwordEncoder.encode("product-catalog-service-secret"))
+                    .authorizedGrantTypes("client_credentials")
+                    .scopes("server")
+                    .and()
+                .withClient("admin")
+                    .secret(passwordEncoder.encode("admin-secret"))
+                    .authorizedGrantTypes("client_credentials")
+                    .authorities("ROLE_ADMIN")
+                    .scopes("admin");
+        //@formatter:on
     }
 
     @Override

@@ -21,3 +21,11 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
+
+security:
+  oauth2:
+    client:
+      client-id: product-catalog-service
+      client-secret: product-catalog-service-secret
+    resource:
+      token-info-uri: http://localhost:9000/oauth/check_token
