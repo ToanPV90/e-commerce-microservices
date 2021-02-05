@@ -31,9 +31,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         UserDto user = authService.createUser(UserDto.builder()
                 .username(email)
                 .password(password)
-                .roles(Collections.singleton("Customer"))
+                .roles(Collections.singleton("CUSTOMER"))
                 .build());
-        log.info("Registered user: {}", user);
 
         Customer customer = customerRepository.save(new Customer(user.getId(), email));
         log.info("Creating customer: {}", customer);

@@ -1,6 +1,5 @@
 package com.mikhailkarpov.orders.service;
 
-import com.mikhailkarpov.orders.client.ProductServiceClient;
 import com.mikhailkarpov.orders.dto.CreateOrderRequest;
 import com.mikhailkarpov.orders.dto.OrderDto;
 import com.mikhailkarpov.orders.dto.OrderItemDto;
@@ -111,6 +110,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderDto> findOrdersByAccountId(String accountId) {
         List<OrderDto> orders = orderRepository.findAllByAccountId(accountId).stream()
                 .map(this::mapOrderFromEntity)

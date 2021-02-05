@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,13 +37,13 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("#oauth2.hasScope('server') or hasRole('ADMIN')")
     public OrderDto findOrderById(@PathVariable UUID id) {
         log.info("Request for order with id={}", id);
         return orderService.findOrderById(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("#oauth2.hasScope('server')")
     public OrderDto updateOrderStatus(@PathVariable UUID id, @RequestParam String status) {
         log.info("Request to update order status with id={}: {}", id, status);
 
@@ -54,10 +56,18 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/account/{accountId}")
-    @PreAuthorize("#oauth2.hasScope('server')")
-    public List<OrderDto> findOrdersByAccountId(@PathVariable String accountId) {
+    @GetMapping
+    @PreAuthorize("#oauth2.hasScope('server') or hasRole('ADMIN')")
+    public List<OrderDto> findOrdersByAccountId(@RequestParam String accountId) {
         log.info("Request for orders by account_id={}", accountId);
         return orderService.findOrdersByAccountId(accountId);
     }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public List<OrderDto> findOrdersForCurrentCustomer(@AuthenticationPrincipal Principal principal) {
+        log.info("Requests for orders by customer {}", principal.getName());
+        return orderService.findOrdersByAccountId(principal.getName());
+    }
+
 }

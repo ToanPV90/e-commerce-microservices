@@ -1,4 +1,4 @@
-package com.mikhailkarpov.orders.client;
+package com.mikhailkarpov.orders.service;
 
 import com.mikhailkarpov.orders.dto.OrderItemDto;
 import org.springframework.cloud.openfeign.FeignClient;
