@@ -27,11 +27,12 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
 
     @Bean
     public TokenStore tokenStore() {
-        return new InMemoryTokenStore();
+        return new InMemoryTokenStore(); // todo tokens persistence
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        //todo clients persistence
         //@formatter:off
         clients.inMemory()
                 .withClient("web-client")
@@ -46,6 +47,11 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
                     .and()
                 .withClient("product-catalog-service")
                     .secret(passwordEncoder.encode("product-catalog-service-secret"))
+                    .authorizedGrantTypes("client_credentials")
+                    .scopes("server")
+                    .and()
+                .withClient("order-service")
+                    .secret(passwordEncoder.encode("order-service-secret"))
                     .authorizedGrantTypes("client_credentials")
                     .scopes("server")
                     .and()

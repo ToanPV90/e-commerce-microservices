@@ -8,6 +8,7 @@ import com.mikhailkarpov.orders.service.OrderService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -40,6 +41,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("#oauth2.hasScope('server')")
     public OrderDto updateOrderStatus(@PathVariable UUID id, @RequestParam String status) {
         log.info("Request to update order status with id={}: {}", id, status);
 
@@ -53,6 +55,7 @@ public class OrderController {
     }
 
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("#oauth2.hasScope('server')")
     public List<OrderDto> findOrdersByAccountId(@PathVariable String accountId) {
         log.info("Request for orders by account_id={}", accountId);
         return orderService.findOrdersByAccountId(accountId);
