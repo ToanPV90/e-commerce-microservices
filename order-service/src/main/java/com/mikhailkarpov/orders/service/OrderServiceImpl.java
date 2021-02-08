@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductServiceClient productServiceClient;
+    private final ProductService productService;
 
     @Override
     @Transactional
@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 
     private List<OrderItemDto> getProductsByCode(Collection<String> codes) {
 
-        List<OrderItemDto> products = productServiceClient.getProductsByCodes(new ArrayList<>(codes));
+        List<OrderItemDto> products = productService.getProductsByCodes(new ArrayList<>(codes));
         log.info("Got {} product(s):", products.size());
         products.forEach(product -> log.info("{}", product));
 
