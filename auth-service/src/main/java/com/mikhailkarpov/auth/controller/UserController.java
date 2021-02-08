@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -21,8 +22,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto user, UriComponentsBuilder uriComponentsBuilder) {
-        log.info("Request for create user: {}", user);
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user,
+                                              UriComponentsBuilder uriComponentsBuilder) {
+        log.info("Request to create user: {}", user);
         UserDto created = userService.createUser(user);
 
         return ResponseEntity

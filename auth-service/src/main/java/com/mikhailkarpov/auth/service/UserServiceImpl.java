@@ -34,7 +34,9 @@ public class UserServiceImpl implements UserService {
         String password = passwordEncoder.encode(user.getPassword());
 
         if (userRepository.existsByUsername(username)) {
-            throw new ResourceAlreadyExistsException("User already exists");
+            String message = String.format("User with username='%s' already exists", username);
+            log.warn(message);
+            throw new ResourceAlreadyExistsException(message);
         }
 
         Set<AppRole> roles = getOrCreateRoles(user.getRoles());
