@@ -17,5 +17,5 @@ hystrix:
     proxy-stream-allow-list: '*'
 
 turbine:
-  app-config: customer-service,order-service
+  app-config: customer-service,order-service,shopping-cart-service
   cluster-name-expression: new String("default")

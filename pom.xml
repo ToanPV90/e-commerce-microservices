@@ -53,6 +53,7 @@
         <module>product-catalog-service</module>
         <module>order-service</module>
         <module>customer-service</module>
+        <module>shopping-cart-service</module>
         <module>auth-service</module>
         <module>turbine</module>
     </modules>

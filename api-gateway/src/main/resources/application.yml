@@ -39,6 +39,12 @@ zuul:
       serviceId: product-catalog-service
       stripPrefix: false
 
+    shopping-cart:
+      path: /shopping-cart/**
+      serviceId: shopping-cart-service
+      stripPrefix: false
+      sensitive-headers:
+
     orders:
       path: /orders/**
       serviceId: order-service
