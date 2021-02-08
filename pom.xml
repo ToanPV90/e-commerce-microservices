@@ -19,6 +19,13 @@
         <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -47,6 +54,7 @@
         <module>order-service</module>
         <module>customer-service</module>
         <module>auth-service</module>
+        <module>hystrix-dashboard</module>
     </modules>
 
 </project>
