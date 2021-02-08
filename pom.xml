@@ -55,6 +55,7 @@
         <module>customer-service</module>
         <module>auth-service</module>
         <module>hystrix-dashboard</module>
+        <module>turbine</module>
     </modules>
 
 </project>
