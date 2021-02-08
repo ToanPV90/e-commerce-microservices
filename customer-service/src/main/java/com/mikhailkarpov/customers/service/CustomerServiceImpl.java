@@ -27,6 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         if (!found.isPresent()) {
             String message = String.format("Customer with id = %s not found", id);
+            log.warn(message);
             throw new ResourceNotFoundException(message);
         }
 

@@ -1,8 +1,8 @@
 package com.mikhailkarpov.customers.exception;
 
-public class ResourceAlreadyExistsException extends RuntimeException {
+public class ConflictException extends RuntimeException {
 
-    public ResourceAlreadyExistsException(String message) {
+    public ConflictException(String message) {
         super(message);
     }
 }
