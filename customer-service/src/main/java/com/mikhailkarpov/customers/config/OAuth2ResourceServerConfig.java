@@ -1,11 +1,9 @@
 package com.mikhailkarpov.customers.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 
@@ -17,9 +15,8 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
         //@formatter:off
         http
             .csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/registration/**").permitAll()
-                .anyRequest().authenticated();
+            .requestMatchers().antMatchers("/customers/**").and()
+            .authorizeRequests().anyRequest().authenticated();
         //@formatter:on
     }
 

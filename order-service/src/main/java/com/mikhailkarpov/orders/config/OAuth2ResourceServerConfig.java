@@ -21,6 +21,7 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
         //@formatter:off
         http
             .csrf().disable()
+            .requestMatchers().antMatchers("/orders/**").and()
             .authorizeRequests().anyRequest().authenticated();
         //@formatter:on
     }

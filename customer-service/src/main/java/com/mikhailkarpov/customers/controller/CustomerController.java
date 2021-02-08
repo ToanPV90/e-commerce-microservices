@@ -17,7 +17,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/customers/{id}")
     public CustomerDto findCustomerById(@PathVariable UUID id) {
         log.info("Request for a customer with id = {}", id);
         return customerService.findCustomerById(id);
