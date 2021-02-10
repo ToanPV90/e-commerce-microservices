@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 @SpringBootApplication
-@EnableResourceServer
+//@EnableResourceServer
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableCircuitBreaker
