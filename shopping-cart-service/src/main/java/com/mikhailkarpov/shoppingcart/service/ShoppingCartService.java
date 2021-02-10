@@ -1,15 +1,18 @@
 package com.mikhailkarpov.shoppingcart.service;
 
-import com.mikhailkarpov.shoppingcart.domain.Product;
 import com.mikhailkarpov.shoppingcart.domain.ShoppingCartItem;
+import com.mikhailkarpov.shoppingcart.entity.ShoppingCart;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface ShoppingCartService {
 
-    void createCart(String id, List<ShoppingCartItem> items);
+    ShoppingCart createCart(String id, Collection<ShoppingCartItem> items);
 
-    List<Product> findById(String id);
+    ShoppingCart findById(String id);
+
+    ShoppingCart updateCart(String id, Collection<ShoppingCartItem> items);
 
     void deleteCart(String id);
+
 }

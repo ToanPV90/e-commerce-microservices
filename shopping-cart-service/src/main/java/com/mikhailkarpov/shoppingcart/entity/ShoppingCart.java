@@ -2,6 +2,7 @@ package com.mikhailkarpov.shoppingcart.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mikhailkarpov.shoppingcart.domain.ShoppingCartItem;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,10 @@ import org.springframework.data.redis.core.RedisHash;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @RedisHash("ShoppingCart")
 public class ShoppingCart implements Serializable {
@@ -28,5 +28,5 @@ public class ShoppingCart implements Serializable {
 
     @NotNull
     @NotEmpty
-    private Set<ShoppingCartItem> items = new HashSet<>();
+    private Set<ShoppingCartItem> items;
 }
