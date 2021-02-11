@@ -1,6 +1,8 @@
 package com.mikhailkarpov.customers.service;
 
+import com.mikhailkarpov.customers.dto.AddressDto;
 import com.mikhailkarpov.customers.dto.CustomerDto;
+import com.mikhailkarpov.customers.entity.Address;
 import com.mikhailkarpov.customers.entity.Customer;
 import com.mikhailkarpov.customers.exception.ResourceNotFoundException;
 import com.mikhailkarpov.customers.repository.CustomerRepository;
@@ -37,6 +39,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerDto mapFromEntity(Customer customer) {
-        return new CustomerDto(customer.getId(), customer.getEmail());
+
+        Address address = customer.getAddress();
+        AddressDto addressDto = AddressDto.builder()
+                .id(address.getId())
+                .zip(address.getZip())
+                .country(address.getCountry())
+                .city(address.getCity())
+                .street(address.getStreet())
+                .build();
+
+        return new CustomerDto(customer.getId(), customer.getEmail(), addressDto);
     }
 }

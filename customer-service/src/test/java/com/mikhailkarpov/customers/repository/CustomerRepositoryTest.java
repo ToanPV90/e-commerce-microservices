@@ -1,5 +1,6 @@
 package com.mikhailkarpov.customers.repository;
 
+import com.mikhailkarpov.customers.entity.Address;
 import com.mikhailkarpov.customers.entity.Customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -61,5 +62,24 @@ class CustomerRepositoryTest {
 
         // then
         assertTrue(customer.isPresent());
+    }
+
+    @Test
+    void shouldCascadePersistAddress() {
+        // given
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer(id, "fake@example.com");
+        customer.setAddress(new Address("zip", "country", "city", "street"));
+        testEntityManager.persistAndFlush(customer);
+
+        //when
+        List<Address> addresses = entityManager
+                .createQuery("SELECT a FROM Address a WHERE a.zip = :zip", Address.class)
+                .setParameter("zip", "zip")
+                .getResultList();
+
+        //then
+        assertEquals(1, addresses.size());
+        assertEquals(id, addresses.get(0).getId());
     }
 }

@@ -13,4 +13,5 @@ public class CustomerDto {
 
     private UUID id;
     private String email;
+    private AddressDto address;
 }

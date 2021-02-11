@@ -1,10 +1,11 @@
 package com.mikhailkarpov.customers.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
+
+import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity(name = "Customer")
 @Table(name = "customers")
@@ -15,6 +16,9 @@ public class Customer {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @OneToOne(fetch = LAZY, orphanRemoval = true, mappedBy = "customer", cascade = {PERSIST, MERGE})
+    private Address address;
 
     protected Customer() {
         // for JPA
@@ -35,6 +39,21 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        if (this.address != null) {
+            this.address.setCustomer(null);
+        }
+
+        this.address = address;
+        if (address != null) {
+            address.setCustomer(this);
+        }
     }
 
     @Override
