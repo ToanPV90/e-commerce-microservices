@@ -19,7 +19,9 @@ public class OrderDto {
 
     private String accountId;
 
-    private List<OrderItemDto> items;
+    private List<ProductDto> items;
+
+    private AddressDto address;
 
     private OrderStatus status;
 }

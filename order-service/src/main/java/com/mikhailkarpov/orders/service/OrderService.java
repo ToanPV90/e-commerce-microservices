@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public interface OrderService {
 
-    OrderDto createOrder(CreateOrderRequest request);
+    OrderDto createOrder(String customerId, CreateOrderRequest request);
 
     OrderDto updateStatus(UUID id, OrderStatus update);
 
     OrderDto findOrderById(UUID id);
 
-    List<OrderDto> findOrdersByAccountId(String accountId);
+    List<OrderDto> findOrdersByCustomerId(String customerId);
 }

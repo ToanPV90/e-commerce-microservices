@@ -18,36 +18,40 @@ public class Order {
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "account_id", nullable = false, updatable = false)
-    private String accountId;
+    @Column(name = "customer_id", nullable = false, updatable = false)
+    private String customerId;
 
     @OneToMany(fetch = LAZY, mappedBy = "order", cascade = PERSIST, orphanRemoval = true)
     private Set<OrderItem> items = new HashSet<>();
+
+    @Embedded
+    private Address address;
 
     @Column(name = "status")
     @Enumerated(value = STRING)
     private OrderStatus status;
 
-    protected Order() {
-        // for JPA
-    }
-
-    public Order(String accountId, OrderStatus status) {
-        this.accountId = accountId;
-        this.status = status;
-    }
-
-    public Order(String accountId, OrderStatus status, Set<OrderItem> items) {
-        this(accountId, status);
-        setItems(items);
+    public Order() {
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getAccountId() {
-        return accountId;
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public Set<OrderItem> getItems() {
@@ -100,7 +104,8 @@ public class Order {
     public String toString() {
         return "Order{" +
                 "id=" + id +
-                ", accountId='" + accountId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", address=" + address +
                 ", status=" + status +
                 '}';
     }

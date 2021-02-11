@@ -1,6 +1,6 @@
 package com.mikhailkarpov.orders.service;
 
-import com.mikhailkarpov.orders.dto.OrderItemDto;
+import com.mikhailkarpov.orders.dto.ProductDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +12,8 @@ import java.util.List;
 public class ProductServiceFallback implements ProductService {
 
     @Override
-    public List<OrderItemDto> getProductsByCodes(List<String> code) {
-        log.info("Product service failed. Calling fallback and returning empty products list");
+    public List<ProductDto> getProductsByCodes(List<String> code) {
+        log.warn("Product service failed. Calling fallback and returning empty products list");
         return Collections.emptyList();
     }
 }

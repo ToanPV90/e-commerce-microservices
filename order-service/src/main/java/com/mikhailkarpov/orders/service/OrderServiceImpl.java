@@ -1,12 +1,13 @@
 package com.mikhailkarpov.orders.service;
 
+import com.mikhailkarpov.orders.dto.AddressDto;
 import com.mikhailkarpov.orders.dto.CreateOrderRequest;
 import com.mikhailkarpov.orders.dto.OrderDto;
-import com.mikhailkarpov.orders.dto.OrderItemDto;
+import com.mikhailkarpov.orders.dto.ProductDto;
+import com.mikhailkarpov.orders.entity.Address;
 import com.mikhailkarpov.orders.entity.Order;
 import com.mikhailkarpov.orders.entity.OrderItem;
 import com.mikhailkarpov.orders.entity.OrderStatus;
-import com.mikhailkarpov.orders.exception.CreateOrderException;
 import com.mikhailkarpov.orders.exception.ResourceNotFoundException;
 import com.mikhailkarpov.orders.exception.UpdateOrderException;
 import com.mikhailkarpov.orders.repository.OrderRepository;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.mikhailkarpov.orders.entity.OrderStatus.AWAITING_FOR_PAYMENT;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -28,44 +31,44 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDto createOrder(CreateOrderRequest request) {
+    public OrderDto createOrder(String customerId, CreateOrderRequest request) {
 
         Map<String, Integer> productAmountPerCode = request.getItems().stream().collect(Collectors.toMap(
                 CreateOrderRequest.CreateOrderItemRequest::getCode,
                 CreateOrderRequest.CreateOrderItemRequest::getAmount)
         );
-        List<OrderItemDto> products = getProductsByCode(productAmountPerCode.keySet());
 
-        Order order = new Order(request.getAccountId(), OrderStatus.WAITING_FOR_PAYMENT);
-
-        Set<OrderItem> items = products.stream().map(product -> {
+        Set<OrderItem> orderItems = getProductsByCode(productAmountPerCode.keySet()).stream().map(product -> {
             String code = product.getCode();
             String name = product.getName();
             Integer price = product.getPrice();
             Integer amount = productAmountPerCode.get(code);
 
-            if (amount > product.getAmount()) {
-                String message = String.format("The number of item %s exceeds available amount", code);
-                throw new CreateOrderException(message);
-            }
-
             return new OrderItem(code, name, price, amount);
         }).collect(Collectors.toSet());
 
-        for (OrderItem item : items) {
-            order.addItem(item);
-        }
-
+        Order order = new Order();
+        order.setCustomerId(customerId);
+        order.setAddress(createAddress(request));
+        order.setItems(orderItems);
+        order.setStatus(AWAITING_FOR_PAYMENT);
         order = orderRepository.save(order);
-        log.info("Creating order: {}", order);
-        items.forEach(item -> log.info("Creating item: {}", item));
+
+        log.info("Creating order: {}", order);;
+        orderItems.forEach(orderItem -> log.info("\t{}", orderItem));
 
         return mapOrderFromEntity(order);
     }
 
-    private List<OrderItemDto> getProductsByCode(Collection<String> codes) {
+    private Address createAddress(CreateOrderRequest request) {
 
-        List<OrderItemDto> products = productService.getProductsByCodes(new ArrayList<>(codes));
+        AddressDto address = request.getAddress();
+        return new Address(address.getZip(), address.getCountry(), address.getCity(), address.getStreet());
+    }
+
+    private List<ProductDto> getProductsByCode(Collection<String> codes) {
+
+        List<ProductDto> products = productService.getProductsByCodes(new ArrayList<>(codes));
         log.info("Got {} product(s):", products.size());
         products.forEach(product -> log.info("{}", product));
 
@@ -73,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
             List<String> notFoundProductsCodes = new ArrayList<>(codes);
 
             notFoundProductsCodes.removeAll(products.stream()
-                    .map(OrderItemDto::getCode)
+                    .map(ProductDto::getCode)
                     .collect(Collectors.toList())
             );
 
@@ -87,15 +90,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto updateStatus(UUID id, OrderStatus update) {
+
         Order order = getById(id);
 
-        if (order.getStatus().equals(OrderStatus.DELIVERED)) {
-            String message = String.format("Order with id=%s already delivered", id);
+        OrderStatus status = order.getStatus();
+        if (!status.isPossibleToUpdateTo(update)) {
+            String message = String.format("Status '{}' can't be updated to '{}'", status.getTitle(), update.getTitle());
+            log.warn(message);
             throw new UpdateOrderException(message);
         }
 
         order.setStatus(update);
-        log.info("Updating order: {}", order);
+        log.info("Updating order status from '{}' to '{}'", status.getTitle(), update.getTitle());
 
         return mapOrderFromEntity(order);
     }
@@ -103,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderDto findOrderById(UUID id) {
+
         Order order = getById(id);
         log.info("Found order: {}", order);
 
@@ -111,20 +118,23 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDto> findOrdersByAccountId(String accountId) {
-        List<OrderDto> orders = orderRepository.findAllByAccountId(accountId).stream()
+    public List<OrderDto> findOrdersByCustomerId(String customerId) {
+
+        List<OrderDto> orders = orderRepository.findAllByCustomerId(customerId).stream()
                 .map(this::mapOrderFromEntity)
                 .collect(Collectors.toList());
 
-        log.info("Found {} order(s) with accountId={}", orders.size(), accountId);
+        log.info("Found {} order(s) with accountId={}", orders.size(), customerId);
         return orders;
     }
 
     private Order getById(UUID id) {
+
         Optional<Order> found = orderRepository.findById(id);
 
         if (!found.isPresent()) {
             String message = String.format("Order with id=%s not found", id);
+            log.warn(message);
             throw new ResourceNotFoundException(message);
         }
 
@@ -135,22 +145,32 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderDto.builder()
                 .id(order.getId())
-                .accountId(order.getAccountId())
+                .accountId(order.getCustomerId())
+                .address(mapAddressFromEntity(order.getAddress()))
                 .status(order.getStatus())
-                .items(order
-                        .getItems()
-                        .stream()
+                .items(order.getItems().stream()
                         .map(this::mapItemFromEntity)
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    private OrderItemDto mapItemFromEntity(OrderItem item) {
-        return OrderItemDto.builder()
+    private ProductDto mapItemFromEntity(OrderItem item) {
+
+        return ProductDto.builder()
                 .code(item.getCode())
                 .name(item.getName())
                 .price(item.getPrice())
                 .amount(item.getAmount())
+                .build();
+    }
+
+    private AddressDto mapAddressFromEntity(Address address) {
+
+        return AddressDto.builder()
+                .zip(address.getZip())
+                .country(address.getCountry())
+                .city(address.getCity())
+                .street(address.getStreet())
                 .build();
     }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -15,12 +16,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class CreateOrderRequest {
 
-    @NotBlank
-    private String accountId;
-
     @NotNull
     @NotEmpty
     private Set<CreateOrderItemRequest> items;
+
+    @NotNull
+    @Valid
+    private AddressDto address;
 
     @Data
     @NoArgsConstructor
