@@ -18,8 +18,6 @@ import java.util.UUID;
 @Validated
 public class ProductDto {
 
-    private UUID id;
-
     @NotBlank
     private String code;
 

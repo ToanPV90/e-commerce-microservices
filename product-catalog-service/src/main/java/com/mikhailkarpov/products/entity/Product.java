@@ -1,17 +1,15 @@
 package com.mikhailkarpov.products.entity;
 
+import lombok.Builder;
+
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity(name = "Product")
 @Table(name = "products")
+@Builder
 public class Product {
 
     @Id
-    @GeneratedValue
-    private UUID id;
-
-    @Column(name = "code", unique = true)
     private String code;
 
     @Column(name = "name", nullable = false)
@@ -26,6 +24,10 @@ public class Product {
     @Column(name = "amount", nullable = false)
     private Integer amount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_fk")
+    private Category category;
+
     protected Product() {
         // for JPA
     }
@@ -38,8 +40,13 @@ public class Product {
         this.amount = amount;
     }
 
-    public UUID getId() {
-        return id;
+    public Product(String code, String name, String description, Integer price, Integer amount, Category category) {
+        this.code = code;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.amount = amount;
+        this.category = category;
     }
 
     public String getCode() {
@@ -82,6 +89,14 @@ public class Product {
         this.amount = amount;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,8 +115,7 @@ public class Product {
     @Override
     public String toString() {
         return "Product{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
+                "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +

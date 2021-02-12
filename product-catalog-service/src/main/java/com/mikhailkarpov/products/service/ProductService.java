@@ -1,23 +1,23 @@
 package com.mikhailkarpov.products.service;
 
 import com.mikhailkarpov.products.dto.ProductDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductService {
 
-    ProductDto createProduct(ProductDto product);
+    ProductDto createProduct(Long categoryId, ProductDto product);
 
     ProductDto updateProduct(String code, ProductDto update);
 
     ProductDto findProductByCode(String code);
 
-    List<ProductDto> findAllProducts();
-
-    List<ProductDto> findAllByCodes(List<String> codes);
+    Iterable<ProductDto> findAllByCodes(List<String> codes);
 
     void deleteProduct(String code);
 
-    List<ProductDto> search(String query);
+    Iterable<ProductDto> search(String query);
 
+    Iterable<ProductDto> findAllByCategoryId(Long categoryId);
 }
