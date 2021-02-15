@@ -39,6 +39,11 @@ zuul:
       serviceId: product-catalog-service
       stripPrefix: false
 
+    subcategories:
+      path: /subcategories/**
+      serviceId: product-catalog-service
+      stripPrefix: false
+
     products:
       path: /products/**
       serviceId: product-catalog-service

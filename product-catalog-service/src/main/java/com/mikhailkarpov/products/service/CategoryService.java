@@ -2,16 +2,11 @@ package com.mikhailkarpov.products.service;
 
 import com.mikhailkarpov.products.dto.CategoryDto;
 
+import java.util.List;
+
 public interface CategoryService {
 
-    CategoryDto createCategory(CategoryDto category);
+    List<CategoryDto> findParentCategories();
 
-    void deleteCategory(Long id);
-
-    Iterable<CategoryDto> findAll();
-
-    CategoryDto findById(Long id);
-
-    CategoryDto updateCategory(Long id, CategoryDto update);
-
+    List<CategoryDto> findAllByParentId(Integer id);
 }

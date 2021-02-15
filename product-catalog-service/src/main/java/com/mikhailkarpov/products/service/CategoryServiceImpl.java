@@ -1,96 +1,57 @@
 package com.mikhailkarpov.products.service;
 
 import com.mikhailkarpov.products.dto.CategoryDto;
-import com.mikhailkarpov.products.entity.Category;
-import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
-import com.mikhailkarpov.products.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
+import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
-    private final CategoryRepository categoryRepository;
+    private final EntityManager entityManager;
 
     @Override
-    @Transactional
-    public CategoryDto createCategory(CategoryDto category) {
+    public List<CategoryDto> findParentCategories() {
 
-        String name = category.getName();
+        return entityManager.createQuery(
+                "SELECT new com.mikhailkarpov.products.dto.CategoryDto(c.id, c.name) " +
+                        "FROM Category c " +
+                        "WHERE c.parent = null", CategoryDto.class)
+                .getResultList();
+    }
 
-        if (categoryRepository.existsByName(name)) {
-            String message = String.format("Category '%s' already exists", name);
-            throw new ResourceAlreadyExistsException(message);
+    @Override
+    public List<CategoryDto> findAllByParentId(Integer id) {
+
+        List<CategoryDto> subcategories = entityManager.createQuery(
+                "SELECT new com.mikhailkarpov.products.dto.CategoryDto(c.id, c.name) " +
+                        "FROM Category c " +
+                        "WHERE c.parent.id = :id", CategoryDto.class)
+                .setParameter("id", id)
+                .getResultList();
+
+        if (subcategories.isEmpty() && !existsById(id)) {
+            String message = String.format("Category with id = %d not found", id);
+            throw new ResourceNotFoundException(message);
         }
 
-        Category created = categoryRepository.save(new Category(name));
-        log.info("Creating {}", created);
-
-        return mapDtoFromEntity(created);
+        return subcategories;
     }
 
-    @Override
-    @Transactional
-    public void deleteCategory(Long id) {
+    private boolean existsById(Integer id) {
+        Long count = entityManager
+                .createQuery("COUNT(c) FROM Category c WHERE c.id = :id", Long.class)
+                .setParameter("id", id)
+                .getSingleResult();
 
-        Category category = getCategoryOrElseThrow(id);
-        log.info("Deleting {}", category);
-        categoryRepository.delete(category);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Iterable<CategoryDto> findAll() {
-
-        List<Category> categories = new LinkedList<>();
-        categoryRepository.findAll().forEach(categories::add);
-        log.info("Found categories: {}", categories.size());
-
-        return categories.stream()
-                .map(this::mapDtoFromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CategoryDto findById(Long id) {
-
-        Category category = getCategoryOrElseThrow(id);
-        log.info("Found {}", category);
-
-        return mapDtoFromEntity(category);
-    }
-
-    @Override
-    @Transactional
-    public CategoryDto updateCategory(Long id, CategoryDto update) {
-
-        Category category = getCategoryOrElseThrow(id);
-        category.setName(update.getName());
-        log.info("Updating {}", category);
-
-        return mapDtoFromEntity(category);
-    }
-
-    private Category getCategoryOrElseThrow(Long id) {
-
-        return categoryRepository.findById(id).orElseThrow(() -> {
-            String message = String.format("Category with id '%d' not found", id);
-            return new ResourceNotFoundException(message);
-        });
-    }
-
-    private CategoryDto mapDtoFromEntity(Category category) {
-
-        return new CategoryDto(category.getId(), category.getName());
+        return count == 1;
     }
 }

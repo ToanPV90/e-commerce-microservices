@@ -5,9 +5,8 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface ProductRepository extends CrudRepository<Product, UUID> {
+public interface ProductRepository extends CrudRepository<Product, String> {
 
     boolean existsByCode(String code);
 
@@ -17,5 +16,5 @@ public interface ProductRepository extends CrudRepository<Product, UUID> {
 
     List<Product> findAllByCodeIn(List<String> codes);
 
-    List<Product> findAllByCategoryId(Long categoryId);
+    List<Product> findAllByCategoryId(Integer id);
 }

@@ -26,10 +26,7 @@ class ProductRepositoryTest {
 
     @BeforeEach
     void initProducts() {
-        entityManager.persist(new Product("ABC", "product 1", "description 1", 110, 11));
-        entityManager.persist(new Product("DEF", "product 2", "description 2", 120, 12));
-        entityManager.persist(new Product("ABC DEF", "prod 3", "description 3", 130, 13));
-        entityManager.flush();
+
     }
 
     @Test

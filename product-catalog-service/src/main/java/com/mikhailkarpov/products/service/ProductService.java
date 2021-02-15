@@ -7,17 +7,11 @@ import java.util.List;
 
 public interface ProductService {
 
-    ProductDto createProduct(Long categoryId, ProductDto product);
-
-    ProductDto updateProduct(String code, ProductDto update);
-
     ProductDto findProductByCode(String code);
 
-    Iterable<ProductDto> findAllByCodes(List<String> codes);
+    List<ProductDto> findProductsByCategoryId(Integer categoryId);
 
-    void deleteProduct(String code);
+    List<ProductDto> findProductsByCodesIn(List<String> codes);
 
-    Iterable<ProductDto> search(String query);
-
-    Iterable<ProductDto> findAllByCategoryId(Long categoryId);
+    List<ProductDto> searchProducts(String query);
 }

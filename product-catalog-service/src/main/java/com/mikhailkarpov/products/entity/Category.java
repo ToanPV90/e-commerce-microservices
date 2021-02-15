@@ -1,72 +1,47 @@
 package com.mikhailkarpov.products.entity;
 
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.*;
-
-import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.FetchType.LAZY;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "Category")
 @Table(name = "categories")
+@NoArgsConstructor
+@Getter
+@Setter
 public class Category {
 
-    private static final Logger log = LoggerFactory.getLogger(Category.class);
-
     @Id
-    @GeneratedValue
-    private Long id;
+    @SequenceGenerator(name = "categories_id_seq", sequenceName = "categories_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_id_seq")
+    private Integer id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(fetch = LAZY, mappedBy = "category", cascade = {PERSIST, MERGE})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_category_id")
+    private Category parent;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+    private Set<Category> subcategories = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private Set<Product> products = new HashSet<>();
 
-    protected Category() {
-        // for JPA
-    }
-
-    public Category(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public Collection<Category> getSubcategories() {
+        return Collections.unmodifiableCollection(subcategories);
     }
 
     public Collection<Product> getProducts() {
         return Collections.unmodifiableCollection(products);
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
-    }
-
-    public void addProduct(Product product) {
-        if (products.add(product)) {
-            product.setCategory(this);
-            log.debug("Added {}", product);
-        }
-    }
-
-    public void removeProduct(Product product) {
-        if (products.remove(product)) {
-            product.setCategory(null);
-            log.debug("Removed {}", product);
-        }
     }
 
     @Override
@@ -76,7 +51,7 @@ public class Category {
 
         Category category = (Category) o;
 
-        return getName().equals(category.getName());
+        return this.name.equals(category.name);
     }
 
     @Override
@@ -88,7 +63,7 @@ public class Category {
     public String toString() {
         return "Category{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + getName() + '\'' +
                 '}';
     }
 }
