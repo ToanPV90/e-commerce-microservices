@@ -1,13 +1,18 @@
 package com.mikhailkarpov.products.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "Product")
 @Table(name = "products")
+@NoArgsConstructor
+@Getter
+@Setter
 public class Product {
 
     @Id
@@ -43,22 +48,6 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_fk")
     )
     private Set<Category> categories = new HashSet<>();
-
-    public Product() {
-        // for JPA
-    }
-
-    protected void addTo(Category category) {
-        this.categories.add(category);
-    }
-
-    protected void removeFrom(Category category) {
-        this.categories.remove(category);
-    }
-
-    public List<Category> getCategories() {
-        return Collections.unmodifiableList(new ArrayList<>(categories));
-    }
 
     @Override
     public boolean equals(Object o) {

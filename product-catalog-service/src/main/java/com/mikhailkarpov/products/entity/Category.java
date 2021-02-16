@@ -1,10 +1,17 @@
 package com.mikhailkarpov.products.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.*;
 
 @Entity(name = "Category")
 @Table(name = "categories")
+@NoArgsConstructor
+@Getter
+@Setter
 public class Category {
 
     @Id
@@ -20,37 +27,12 @@ public class Category {
     private Category parent;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-    private final Set<Category> subcategories = new HashSet<>();
+    private Set<Category> subcategories = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
-    private final Set<Product> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
-    public Category() {
-    }
 
-    public Category(String name) {
-        this.name = name;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Category getParent() {
-        return parent;
-    }
-
-    public List<Category> getSubcategories() {
-        return Collections.unmodifiableList(new ArrayList<>(subcategories));
-    }
-
-    public List<Product> getProducts() {
-        return Collections.unmodifiableList(new ArrayList<>(products));
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -59,7 +41,7 @@ public class Category {
 
         Category category = (Category) o;
 
-        return this.name.equals(category.name);
+        return this.name.equals(category.name) && Objects.equals(id, category.getId());
     }
 
     @Override

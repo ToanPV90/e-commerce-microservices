@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException(message);
         }
 
-        return categories.get(0).getProducts();
+        return new ArrayList<>(categories.get(0).getProducts());
     }
 
     @Override
