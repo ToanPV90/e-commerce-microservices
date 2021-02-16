@@ -1,12 +1,12 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.dto.CategoryDto;
+import com.mikhailkarpov.products.entity.Category;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    List<CategoryDto> findParentCategories();
+    List<Category> findParentCategories();
 
-    List<CategoryDto> findAllByParentId(Integer id);
+    List<Category> findSubcategoriesByParentId(Integer id);
 }

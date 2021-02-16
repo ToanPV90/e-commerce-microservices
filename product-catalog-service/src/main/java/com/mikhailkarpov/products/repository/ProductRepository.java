@@ -16,5 +16,5 @@ public interface ProductRepository extends CrudRepository<Product, String> {
 
     List<Product> findAllByCodeIn(List<String> codes);
 
-    List<Product> findAllByCategoryId(Integer id);
+    List<Product> findAllByNameLike(String name);
 }

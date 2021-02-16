@@ -1,13 +1,12 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.dto.CategoryDto;
-import com.mikhailkarpov.products.exception.ResourceNotFoundException;
+import com.mikhailkarpov.products.entity.Category;
+import com.mikhailkarpov.products.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Slf4j
@@ -16,42 +15,17 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
-    private final EntityManager entityManager;
+    private final CategoryRepository categoryRepository;
 
     @Override
-    public List<CategoryDto> findParentCategories() {
+    public List<Category> findParentCategories() {
 
-        return entityManager.createQuery(
-                "SELECT new com.mikhailkarpov.products.dto.CategoryDto(c.id, c.name) " +
-                        "FROM Category c " +
-                        "WHERE c.parent = null", CategoryDto.class)
-                .getResultList();
+        return categoryRepository.findAllByParentId(null);
     }
 
     @Override
-    public List<CategoryDto> findAllByParentId(Integer id) {
+    public List<Category> findSubcategoriesByParentId(Integer id) {
 
-        List<CategoryDto> subcategories = entityManager.createQuery(
-                "SELECT new com.mikhailkarpov.products.dto.CategoryDto(c.id, c.name) " +
-                        "FROM Category c " +
-                        "WHERE c.parent.id = :id", CategoryDto.class)
-                .setParameter("id", id)
-                .getResultList();
-
-        if (subcategories.isEmpty() && !existsById(id)) {
-            String message = String.format("Category with id = %d not found", id);
-            throw new ResourceNotFoundException(message);
-        }
-
-        return subcategories;
-    }
-
-    private boolean existsById(Integer id) {
-        Long count = entityManager
-                .createQuery("COUNT(c) FROM Category c WHERE c.id = :id", Long.class)
-                .setParameter("id", id)
-                .getSingleResult();
-
-        return count == 1;
+        return categoryRepository.findAllByParentId(id);
     }
 }
