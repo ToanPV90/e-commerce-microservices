@@ -16,12 +16,10 @@ public interface ProductRepository extends CrudRepository<Product, String> {
 
     List<Product> findAllByCodeIn(List<String> codes);
 
-    List<Product> findAllByNameContaining(String name);
-
-    List<Product> findAllByNameLike(String name);
+    List<Product> findAllByNameContainingIgnoreCase(String name);
 
     Optional<Product> findByCode(String code);
 
-    @Query("SELECT p FROM Product p WHERE lower(p.name) LIKE lower(concat('%',:name,'%')) AND p.code IN :codes")
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%',:name,'%')) AND p.code IN :codes")
     List<Product> search(@Param("name") String name, @Param("codes") List<String> codes);
 }

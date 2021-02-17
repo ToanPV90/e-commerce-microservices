@@ -1,7 +1,6 @@
 package com.mikhailkarpov.products.service;
 
 import com.mikhailkarpov.products.dto.ProductDto;
-import com.mikhailkarpov.products.entity.Category;
 import com.mikhailkarpov.products.entity.Product;
 import com.mikhailkarpov.products.exception.BadRequestException;
 import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
@@ -82,7 +81,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> searchProducts(String query) {
 
-        return productRepository.findAllByNameLike(query);
+        return productRepository.findAllByNameContainingIgnoreCase(query);
     }
 
     @Override

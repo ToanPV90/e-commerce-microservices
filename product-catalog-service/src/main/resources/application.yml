@@ -32,3 +32,14 @@ security:
       client-secret: product-catalog-service-secret
     resource:
       token-info-uri: http://localhost:9000/oauth/check_token
+
+---
+
+spring:
+  profiles: test
+  flyway:
+    locations: classpath:db/migration,classpath:db/migration/test
+
+eureka:
+  client:
+    enabled: false
