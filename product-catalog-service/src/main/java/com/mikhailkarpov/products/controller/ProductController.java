@@ -5,11 +5,12 @@ import com.mikhailkarpov.products.entity.Product;
 import com.mikhailkarpov.products.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +21,28 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/categories/{id}/products")
-    public List<ProductDto> findProductsByCategoryId(@PathVariable Integer id) {
+    @PostMapping("/products")
+    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto,
+                                                    UriComponentsBuilder uriComponentsBuilder) {
 
-        log.info("Request for products in category '{}'", id);
-        return productService
-                .findProductsByCategoryId(id)
-                .stream()
+        log.info("Request to create {}", productDto);
+        Product product = productService.createProduct(productDto);
+
+        URI location = uriComponentsBuilder.path("/products/{code}").build(product.getCode());
+
+        return ResponseEntity
+                .created(location)
+                .body(mapDto(product));
+    }
+
+    @GetMapping("/products")
+    public List<ProductDto> findAll(@RequestParam(value = "name", required = false, defaultValue = "") String name,
+                                    @RequestParam(value = "code", required = false) List<String> codes) {
+
+        log.info("Request for all products");
+        List<Product> products = productService.findAll(name, codes);
+
+        return products.stream()
                 .map(this::mapDto)
                 .collect(Collectors.toList());
     }
@@ -36,6 +52,15 @@ public class ProductController {
 
         log.info("Request for product '{}'", code);
         Product product = productService.findProductByCode(code);
+        return mapDto(product);
+    }
+
+    @PutMapping("/products/{code}")
+    public ProductDto updateProduct(@PathVariable String code, @Valid @RequestBody ProductDto update) {
+
+        log.info("Request to update product '{}': {}", code, update);
+        Product product = productService.updateProduct(code, update);
+
         return mapDto(product);
     }
 
@@ -70,6 +95,5 @@ public class ProductController {
                 .price(product.getPrice())
                 .amount(product.getAmount())
                 .build();
-
     }
 }

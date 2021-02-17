@@ -1,7 +1,10 @@
 package com.mikhailkarpov.products.service;
 
+import com.mikhailkarpov.products.dto.ProductDto;
 import com.mikhailkarpov.products.entity.Category;
 import com.mikhailkarpov.products.entity.Product;
+import com.mikhailkarpov.products.exception.BadRequestException;
+import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
 import com.mikhailkarpov.products.repository.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -9,20 +12,40 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final EntityManager entityManager;
 
     @Override
+    @Transactional
+    public Product createProduct(ProductDto product) {
+
+        if (productRepository.existsByCode(product.getCode())) {
+            String message = String.format("Product '%s' already exists", product.getCode());
+            throw new ResourceAlreadyExistsException(message);
+        }
+
+        Product created = productRepository.save(Product.builder()
+                .code(product.getCode())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .amount(product.getAmount())
+                .build());
+
+        log.info("Saving {}", created);
+        return created;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Product findProductByCode(String code) {
 
         return productRepository.findByCode(code).orElseThrow(() -> {
@@ -32,24 +55,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findProductsByCategoryId(Integer categoryId) {
+    @Transactional(readOnly = true)
+    public List<Product> findAll() {
 
-        List<Category> categories = entityManager.createQuery(
-                "SELECT c FROM Category c " +
-                        "LEFT JOIN FETCH c.products " +
-                        "WHERE c.id = :id", Category.class)
-                .setParameter("id", categoryId)
-                .getResultList();
+        List<Product> products = new ArrayList<>();
+        productRepository.findAll().forEach(products::add);
+        products.sort(Comparator.comparing(Product::getCode));
 
-        if (categories.isEmpty()) {
-            String message = String.format("Category with id '%d' not found", categoryId);
-            throw new ResourceNotFoundException(message);
-        }
-
-        return new ArrayList<>(categories.get(0).getProducts());
+        return products;
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Product> findProductsByCategoryId(Integer categoryId) {
+
+        return productRepository.findAllByCategoriesId(categoryId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Product> findProductsByCodesIn(List<String> codes) {
 
         return productRepository.findAllByCodeIn(codes);
@@ -61,5 +85,28 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAllByNameLike(query);
     }
 
+    @Override
+    public Product updateProduct(String code, ProductDto update) {
 
+        if (code.equals(update.getCode())) {
+            String message = String.format("Expected code '%s', but was '%s'", code, update.getCode());
+            throw new BadRequestException(message);
+        }
+
+        Product product = findProductByCode(code);
+        product.setName(update.getName());
+        product.setDescription(update.getDescription());
+        product.setPrice(update.getPrice());
+        product.setAmount(update.getAmount());
+
+        log.info("Updating {}", product);
+        return product;
+    }
+
+    @Override
+    @Transactional
+    public List<Product> findAll(String name, List<String> codes) {
+
+        return productRepository.search(name, codes);
+    }
 }
