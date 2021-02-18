@@ -1,13 +1,15 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.entity.Category;
+import com.mikhailkarpov.products.persistence.entity.Category;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
-import com.mikhailkarpov.products.repository.CategoryRepository;
+import com.mikhailkarpov.products.persistence.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,17 +31,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional
-    public Category createSubcategory(Integer parentId, String name) {
-
-        Category parent = findById(parentId);
-        Category subcategory = categoryRepository.save(parent.createSubcategory(name));
-
-        log.info("Saving subcategory {} in category {}", subcategory, parent);
-        return subcategory;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public Category findById(Integer id) {
 
@@ -51,18 +42,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Category> findAll() {
+    public List<Category> findAll(boolean includeSubcategories) {
 
-        List<Category> categories = new LinkedList<>();
-        categoryRepository.findAll().forEach(categories::add);
+        List<Category> categories = new ArrayList<>();
+
+        if (includeSubcategories) {
+            categoryRepository.findAll().forEach(categories::add);
+        } else {
+            categoryRepository.findAllByParentId(null).forEach(categories::add);
+        }
+
         return categories;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Category> findParentCategories() {
-
-        return categoryRepository.findAllByParentId(null);
     }
 
     @Override

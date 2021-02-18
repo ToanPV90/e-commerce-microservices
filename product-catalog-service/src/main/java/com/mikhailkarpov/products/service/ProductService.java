@@ -1,9 +1,9 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.dto.ProductDto;
-import com.mikhailkarpov.products.entity.Product;
+import com.mikhailkarpov.products.controller.dto.ProductDto;
+import com.mikhailkarpov.products.controller.dto.ProductSearchParameters;
+import com.mikhailkarpov.products.persistence.entity.Product;
 
-import java.util.Arrays;
 import java.util.List;
 
 public interface ProductService {
@@ -14,13 +14,8 @@ public interface ProductService {
 
     List<Product> findAll();
 
-    List<Product> findProductsByCategoryId(Integer categoryId);
-
-    List<Product> findProductsByCodesIn(List<String> codes);
-
-    List<Product> searchProducts(String query);
+    List<Product> findByParameters(ProductSearchParameters parameters);
 
     Product updateProduct(String code, ProductDto update);
 
-    List<Product> findAll(String name, List<String> codes);
 }

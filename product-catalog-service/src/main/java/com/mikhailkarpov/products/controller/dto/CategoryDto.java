@@ -1,4 +1,4 @@
-package com.mikhailkarpov.products.dto;
+package com.mikhailkarpov.products.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

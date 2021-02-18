@@ -1,6 +1,6 @@
-package com.mikhailkarpov.products.repository;
+package com.mikhailkarpov.products.persistence.repository;
 
-import com.mikhailkarpov.products.entity.Category;
+import com.mikhailkarpov.products.persistence.entity.Category;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

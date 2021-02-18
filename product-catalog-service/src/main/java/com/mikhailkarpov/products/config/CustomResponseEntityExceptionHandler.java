@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.config;
 
-import com.mikhailkarpov.products.dto.ApiErrorResponse;
+import com.mikhailkarpov.products.controller.dto.ApiErrorResponse;
 import com.mikhailkarpov.products.exception.BadRequestException;
 import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
@@ -8,11 +8,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.HttpStatus.*;
 

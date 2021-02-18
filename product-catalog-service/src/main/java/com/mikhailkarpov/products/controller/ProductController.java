@@ -1,7 +1,9 @@
 package com.mikhailkarpov.products.controller;
 
-import com.mikhailkarpov.products.dto.ProductDto;
-import com.mikhailkarpov.products.entity.Product;
+import com.mikhailkarpov.products.controller.dto.ProductDto;
+import com.mikhailkarpov.products.controller.dto.ProductSearchParameters;
+import com.mikhailkarpov.products.controller.mapper.ProductMapper;
+import com.mikhailkarpov.products.persistence.entity.Product;
 import com.mikhailkarpov.products.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,8 @@ public class ProductController {
 
     private final ProductService productService;
 
+    private final ProductMapper productMapper;
+
     @PostMapping("/products")
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto,
                                                     UriComponentsBuilder uriComponentsBuilder) {
@@ -32,18 +36,19 @@ public class ProductController {
 
         return ResponseEntity
                 .created(location)
-                .body(mapDto(product));
+                .body(productMapper.map(product));
     }
 
     @GetMapping("/products")
     public List<ProductDto> findAll(@RequestParam(value = "name", required = false, defaultValue = "") String name,
-                                    @RequestParam(value = "code", required = false) List<String> codes) {
+                                    @RequestParam(value = "code", required = false) List<String> codes,
+                                    @RequestParam(value = "category", required = false) Integer categoryId) {
 
-        log.info("Request for all products");
-        List<Product> products = productService.findAll(name, codes);
+        log.info("Request for products: name={}, codes={}, category_id={}", name, codes, categoryId);
 
-        return products.stream()
-                .map(this::mapDto)
+        return productService.findByParameters(new ProductSearchParameters(name, codes, categoryId))
+                .stream()
+                .map(productMapper::map)
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +57,8 @@ public class ProductController {
 
         log.info("Request for product '{}'", code);
         Product product = productService.findProductByCode(code);
-        return mapDto(product);
+
+        return productMapper.map(product);
     }
 
     @PutMapping("/products/{code}")
@@ -61,39 +67,6 @@ public class ProductController {
         log.info("Request to update product '{}': {}", code, update);
         Product product = productService.updateProduct(code, update);
 
-        return mapDto(product);
-    }
-
-    @GetMapping("/products/list")
-    public List<ProductDto> findProductsByCodesIn(@RequestParam("code") List<String> codes) {
-
-        log.info("Request for products list: {}", codes);
-        return productService
-                .findProductsByCodesIn(codes)
-                .stream()
-                .map(this::mapDto)
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("/products/search")
-    public List<ProductDto> searchProducts(@RequestParam String query) {
-
-        log.info("Request to search products '{}'", query);
-        return productService
-                .searchProducts(query)
-                .stream()
-                .map(this::mapDto)
-                .collect(Collectors.toList());
-    }
-
-    private ProductDto mapDto(Product product) {
-
-        return ProductDto.builder()
-                .code(product.getCode())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .amount(product.getAmount())
-                .build();
+        return productMapper.map(product);
     }
 }

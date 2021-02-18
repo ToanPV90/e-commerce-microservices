@@ -1,7 +1,8 @@
 package com.mikhailkarpov.products.controller;
 
-import com.mikhailkarpov.products.dto.CategoryDto;
-import com.mikhailkarpov.products.entity.Category;
+import com.mikhailkarpov.products.controller.dto.CategoryDto;
+import com.mikhailkarpov.products.controller.mapper.CategoryMapper;
+import com.mikhailkarpov.products.persistence.entity.Category;
 import com.mikhailkarpov.products.service.CategoryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,24 +20,22 @@ import java.util.stream.Collectors;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
 
     @GetMapping("/categories")
-    public List<CategoryDto> findParentCategories(@RequestParam(required = false, defaultValue = "false") Boolean includeSubdirectories) {
+    public List<CategoryDto> findAll(@RequestParam(required = false, defaultValue = "false") Boolean includeSubdirectories) {
 
-        log.info("Request for parent categories");
-        List<Category> categories = includeSubdirectories ?
-                categoryService.findAll() :
-                categoryService.findParentCategories();
+        log.info("Request for categories, including subcategories = {}", includeSubdirectories);
 
-        return categories
+        return categoryService.findAll(includeSubdirectories)
                 .stream()
-                .map(this::mapDto)
+                .map(categoryMapper::map)
                 .collect(Collectors.toList());
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<CategoryDto> createParentCategory(@RequestParam String name,
-                                                            UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<CategoryDto> createCategory(@RequestParam String name,
+                                                      UriComponentsBuilder uriComponentsBuilder) {
 
         log.info("Request to create parent category '{}'", name);
         Category category = categoryService.createCategory(name);
@@ -45,7 +44,7 @@ public class CategoryController {
 
         return ResponseEntity
                 .created(location)
-                .body(mapDto(category));
+                .body(categoryMapper.map(category));
     }
 
     @GetMapping("/categories/{id}")
@@ -54,7 +53,7 @@ public class CategoryController {
         log.info("Request for category with id = {}", id);
         Category category = categoryService.findById(id);
 
-        return mapDto(category);
+        return categoryMapper.map(category);
     }
 
     @PutMapping("/categories/{id}")
@@ -63,7 +62,7 @@ public class CategoryController {
         log.info("Request for category with id = {}", id);
         Category category = categoryService.renameCategory(id, name);
 
-        return mapDto(category);
+        return categoryMapper.map(category);
     }
 
     @GetMapping("/categories/{id}/subcategories")
@@ -73,23 +72,8 @@ public class CategoryController {
         return categoryService
                 .findSubcategoriesByParentId(id)
                 .stream()
-                .map(this::mapDto)
+                .map(categoryMapper::map)
                 .collect(Collectors.toList());
-    }
-
-    @PostMapping("/categories/{id}/subcategories")
-    public ResponseEntity<CategoryDto> createSubcategory(@PathVariable("id") Integer parentId,
-                                                        @RequestParam String name,
-                                                        UriComponentsBuilder uriComponentsBuilder) {
-
-        log.info("Request to create subcategory '{}' in category with id = {}", name, parentId);
-        Category category = categoryService.createSubcategory(parentId, name);
-
-        URI location = uriComponentsBuilder.path("/categories/{id}").build(category.getId());
-
-        return ResponseEntity
-                .created(location)
-                .body(mapDto(category));
     }
 
     @PostMapping("/categories/{id}/move")
@@ -97,10 +81,5 @@ public class CategoryController {
 
         log.info("Request to move category with id = {} to category with id = {}", id, destinationId);
         categoryService.moveCategory(id, destinationId);
-    }
-
-    private CategoryDto mapDto(Category category) {
-
-        return new CategoryDto(category.getId(), category.getName());
     }
 }

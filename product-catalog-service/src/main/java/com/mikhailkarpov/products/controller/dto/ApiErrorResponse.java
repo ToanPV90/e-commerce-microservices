@@ -1,4 +1,4 @@
-package com.mikhailkarpov.products.dto;
+package com.mikhailkarpov.products.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;

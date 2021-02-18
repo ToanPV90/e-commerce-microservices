@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.entity.Category;
+import com.mikhailkarpov.products.persistence.entity.Category;
 
 import java.util.List;
 
@@ -8,13 +8,9 @@ public interface CategoryService {
 
     Category createCategory(String name);
 
-    Category createSubcategory(Integer parentId, String name);
-
     Category findById(Integer id);
 
-    List<Category> findAll();
-
-    List<Category> findParentCategories();
+    List<Category> findAll(boolean includeSubcategories);
 
     List<Category> findSubcategoriesByParentId(Integer id);
 

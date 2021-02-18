@@ -1,9 +1,6 @@
-package com.mikhailkarpov.products.entity;
+package com.mikhailkarpov.products.persistence.entity;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;

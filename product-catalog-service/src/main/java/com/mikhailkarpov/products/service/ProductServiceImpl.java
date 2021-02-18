@@ -1,18 +1,19 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.dto.ProductDto;
-import com.mikhailkarpov.products.entity.Product;
+import com.mikhailkarpov.products.controller.dto.ProductDto;
+import com.mikhailkarpov.products.controller.dto.ProductSearchParameters;
 import com.mikhailkarpov.products.exception.BadRequestException;
 import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
-import com.mikhailkarpov.products.repository.ProductRepository;
+import com.mikhailkarpov.products.persistence.entity.Product;
+import com.mikhailkarpov.products.persistence.repository.ProductRepository;
+import com.mikhailkarpov.products.persistence.specification.ProductSpecification;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +22,8 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+
+    private final ProductSpecification productSpecification;
 
     @Override
     @Transactional
@@ -57,34 +60,35 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public List<Product> findAll() {
 
-        List<Product> products = new ArrayList<>();
-        productRepository.findAll().forEach(products::add);
-        products.sort(Comparator.comparing(Product::getCode));
-
-        return products;
+        return productRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findProductsByCategoryId(Integer categoryId) {
+    public List<Product> findByParameters(ProductSearchParameters parameters) {
 
-        return productRepository.findAllByCategoriesId(categoryId);
+        Specification<Product> specification = productSpecification.nameLike("%");
+
+        String name = parameters.getName();
+        if (name != null) {
+            specification = productSpecification.nameLike("%" + name + "%");
+        }
+
+        List<String> codes = parameters.getCodes();
+        if (codes != null && !codes.isEmpty()) {
+            specification = specification.and(productSpecification.codeIn(codes));
+        }
+
+        Integer categoryId = parameters.getCategoryId();
+        if (categoryId != null) {
+            specification = specification.and(productSpecification.categoryIdEquals(categoryId));
+        }
+
+        return productRepository.findAll(specification);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Product> findProductsByCodesIn(List<String> codes) {
-
-        return productRepository.findAllByCodeIn(codes);
-    }
-
-    @Override
-    public List<Product> searchProducts(String query) {
-
-        return productRepository.findAllByNameContainingIgnoreCase(query);
-    }
-
-    @Override
+    @Transactional
     public Product updateProduct(String code, ProductDto update) {
 
         if (code.equals(update.getCode())) {
@@ -102,10 +106,4 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
-    @Override
-    @Transactional
-    public List<Product> findAll(String name, List<String> codes) {
-
-        return productRepository.search(name, codes);
-    }
 }
