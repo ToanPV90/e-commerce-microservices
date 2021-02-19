@@ -8,6 +8,8 @@ public interface CategoryService {
 
     Category createCategory(String name);
 
+    Category createSubcategory(Integer parentId, String name);
+
     Category findById(Integer id);
 
     List<Category> findAll(boolean includeSubcategories);
@@ -18,4 +20,7 @@ public interface CategoryService {
 
     Category renameCategory(Integer id, String name);
 
+    void addProduct(Integer categoryId, String productCode);
+
+    void removeProduct(Integer categoryId, String productCode);
 }

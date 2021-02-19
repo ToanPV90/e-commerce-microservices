@@ -1,14 +1,10 @@
 package com.mikhailkarpov.products.persistence.entity;
 
-import lombok.Builder;
-
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity(name = "Product")
 @Table(name = "products")
-@Builder
 public class Product {
 
     @Id
@@ -27,28 +23,19 @@ public class Product {
     @Column(name = "amount", nullable = false)
     private Integer amount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "categories_products",
-            joinColumns = @JoinColumn(name = "product_fk"),
-            inverseJoinColumns = @JoinColumn(name = "category_fk")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "products")
     private Set<Category> categories = new HashSet<>();
 
     protected Product() {
+        // for JPA
     }
 
-    protected Product(String code, String name, String description, Integer price, Integer amount) {
-        this(code, name, description, price, amount, new HashSet<>());
-    }
-
-    protected Product(String code, String name, String description, Integer price, Integer amount, Set<Category> categories) {
+    public Product(String code, String name, String description, Integer price, Integer amount) {
         this.code = code;
         this.name = name;
         this.description = description;
         this.price = price;
         this.amount = amount;
-        this.categories = categories;
     }
 
     public String getCode() {
@@ -91,11 +78,19 @@ public class Product {
         this.amount = amount;
     }
 
-    public Set<Category> getCategories() {
-        return categories;
+    public List<Category> getCategories() {
+        return Collections.unmodifiableList(new ArrayList<>(categories));
     }
 
-    public void setCategories(Set<Category> categories) {
+    protected void addToCategory(Category category) {
+        this.categories.add(category);
+    }
+
+    protected void removeFromCategory(Category category) {
+        this.categories.remove(category);
+    }
+
+    protected void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 

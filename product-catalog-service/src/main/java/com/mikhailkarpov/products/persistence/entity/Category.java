@@ -27,10 +27,15 @@ public class Category {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
     private Set<Category> subcategories = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "categories_products",
+            joinColumns = @JoinColumn(name = "category_fk"),
+            inverseJoinColumns = @JoinColumn(name = "product_fk")
+    )
     private Set<Product> products = new HashSet<>();
 
-    public Category() {
+    protected Category() {
         //for JPA
     }
 
@@ -57,11 +62,21 @@ public class Category {
     }
 
     public List<Category> getSubcategories() {
-        return new ArrayList<>(subcategories);
+        return Collections.unmodifiableList(new ArrayList<>(subcategories));
+    }
+
+    public void addProduct(Product product) {
+        this.products.add(product);
+        product.addToCategory(this);
+    }
+
+    public void removeProduct(Product product) {
+        this.products.remove(product);
+        product.removeFromCategory(this);
     }
 
     public List<Product> getProducts() {
-        return new ArrayList<>(products);
+        return Collections.unmodifiableList(new ArrayList<>(products));
     }
 
     @Override

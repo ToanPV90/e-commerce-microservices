@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.controller.mapper;
 
-import com.mikhailkarpov.products.controller.dto.ProductDto;
+import com.mikhailkarpov.products.dto.ProductDto;
 import com.mikhailkarpov.products.persistence.entity.Product;
 import org.springframework.stereotype.Component;
 

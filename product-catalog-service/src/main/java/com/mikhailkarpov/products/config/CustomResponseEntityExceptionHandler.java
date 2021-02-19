@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.config;
 
-import com.mikhailkarpov.products.controller.dto.ApiErrorResponse;
+import com.mikhailkarpov.products.dto.ApiErrorResponse;
 import com.mikhailkarpov.products.exception.BadRequestException;
 import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;

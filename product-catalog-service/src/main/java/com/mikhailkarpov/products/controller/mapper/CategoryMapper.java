@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.controller.mapper;
 
-import com.mikhailkarpov.products.controller.dto.CategoryDto;
+import com.mikhailkarpov.products.dto.CategoryDto;
 import com.mikhailkarpov.products.persistence.entity.Category;
 import org.springframework.stereotype.Component;
 

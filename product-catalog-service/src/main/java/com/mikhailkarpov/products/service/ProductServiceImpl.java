@@ -1,13 +1,11 @@
 package com.mikhailkarpov.products.service;
 
-import com.mikhailkarpov.products.controller.dto.ProductDto;
-import com.mikhailkarpov.products.controller.dto.ProductSearchParameters;
+import com.mikhailkarpov.products.dto.ProductDto;
 import com.mikhailkarpov.products.exception.BadRequestException;
 import com.mikhailkarpov.products.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.products.exception.ResourceNotFoundException;
 import com.mikhailkarpov.products.persistence.entity.Product;
 import com.mikhailkarpov.products.persistence.repository.ProductRepository;
-import com.mikhailkarpov.products.persistence.specification.ProductSpecification;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,8 +21,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
-    private final ProductSpecification productSpecification;
-
     @Override
     @Transactional
     public Product createProduct(ProductDto product) {
@@ -34,13 +30,12 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceAlreadyExistsException(message);
         }
 
-        Product created = productRepository.save(Product.builder()
-                .code(product.getCode())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .amount(product.getAmount())
-                .build());
+        Product created = productRepository.save(new Product(
+                product.getCode(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getAmount()));
 
         log.info("Saving {}", created);
         return created;
@@ -65,24 +60,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findByParameters(ProductSearchParameters parameters) {
-
-        Specification<Product> specification = productSpecification.nameLike("%");
-
-        String name = parameters.getName();
-        if (name != null) {
-            specification = productSpecification.nameLike("%" + name + "%");
-        }
-
-        List<String> codes = parameters.getCodes();
-        if (codes != null && !codes.isEmpty()) {
-            specification = specification.and(productSpecification.codeIn(codes));
-        }
-
-        Integer categoryId = parameters.getCategoryId();
-        if (categoryId != null) {
-            specification = specification.and(productSpecification.categoryIdEquals(categoryId));
-        }
+    public List<Product> findBySpecification(Specification<Product> specification) {
 
         return productRepository.findAll(specification);
     }
@@ -91,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Product updateProduct(String code, ProductDto update) {
 
-        if (code.equals(update.getCode())) {
+        if (!code.equals(update.getCode())) {
             String message = String.format("Expected code '%s', but was '%s'", code, update.getCode());
             throw new BadRequestException(message);
         }

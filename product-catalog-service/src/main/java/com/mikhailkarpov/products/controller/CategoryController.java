@@ -1,6 +1,6 @@
 package com.mikhailkarpov.products.controller;
 
-import com.mikhailkarpov.products.controller.dto.CategoryDto;
+import com.mikhailkarpov.products.dto.CategoryDto;
 import com.mikhailkarpov.products.controller.mapper.CategoryMapper;
 import com.mikhailkarpov.products.persistence.entity.Category;
 import com.mikhailkarpov.products.service.CategoryService;
@@ -37,7 +37,7 @@ public class CategoryController {
     public ResponseEntity<CategoryDto> createCategory(@RequestParam String name,
                                                       UriComponentsBuilder uriComponentsBuilder) {
 
-        log.info("Request to create parent category '{}'", name);
+        log.info("Request to create category '{}'", name);
         Category category = categoryService.createCategory(name);
 
         URI location = uriComponentsBuilder.path("/categories/{id}").build(category.getId());
@@ -74,6 +74,35 @@ public class CategoryController {
                 .stream()
                 .map(categoryMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/categories/{id}/subcategories")
+    public ResponseEntity<CategoryDto> createSubcategory(@PathVariable("id") Integer parentId,
+                                                         @RequestParam("name") String subcategoryName,
+                                                         UriComponentsBuilder uriComponentsBuilder) {
+
+        log.info("Request to create subcategory '{}' in category with id = {}", subcategoryName, parentId);
+        Category subcategory = categoryService.createSubcategory(parentId, subcategoryName);
+
+        URI location = uriComponentsBuilder.path("/categories/{id}").build(subcategory.getId());
+
+        return ResponseEntity
+                .created(location)
+                .body(categoryMapper.map(subcategory));
+    }
+
+    @PostMapping("/categories/{id}/products")
+    public void addProduct(@PathVariable("id") Integer categoryId, @RequestParam("code") String productCode) {
+
+        log.info("Request to add product '{}' to category with id = {}", productCode, categoryId);
+        categoryService.addProduct(categoryId, productCode);
+    }
+
+    @DeleteMapping("/categories/{id}/products/{code}")
+    public void removeProduct(@PathVariable("id") Integer categoryId, @PathVariable("code") String productCode) {
+
+        log.info("Request to remove product '{}' from category with id = {}", productCode, categoryId);
+        categoryService.removeProduct(categoryId, productCode);
     }
 
     @PostMapping("/categories/{id}/move")

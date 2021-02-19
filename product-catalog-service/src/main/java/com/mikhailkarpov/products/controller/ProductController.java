@@ -1,9 +1,9 @@
 package com.mikhailkarpov.products.controller;
 
-import com.mikhailkarpov.products.controller.dto.ProductDto;
-import com.mikhailkarpov.products.controller.dto.ProductSearchParameters;
+import com.mikhailkarpov.products.dto.ProductDto;
 import com.mikhailkarpov.products.controller.mapper.ProductMapper;
 import com.mikhailkarpov.products.persistence.entity.Product;
+import com.mikhailkarpov.products.persistence.specification.ProductSpecification;
 import com.mikhailkarpov.products.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,13 +40,14 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<ProductDto> findAll(@RequestParam(value = "name", required = false, defaultValue = "") String name,
+    public List<ProductDto> findAll(@RequestParam(value = "name", required = false) String name,
                                     @RequestParam(value = "code", required = false) List<String> codes,
                                     @RequestParam(value = "category", required = false) Integer categoryId) {
 
         log.info("Request for products: name={}, codes={}, category_id={}", name, codes, categoryId);
+        ProductSpecification specification = new ProductSpecification(name, codes, categoryId);
 
-        return productService.findByParameters(new ProductSearchParameters(name, codes, categoryId))
+        return productService.findBySpecification(specification)
                 .stream()
                 .map(productMapper::map)
                 .collect(Collectors.toList());
