@@ -2,6 +2,7 @@ package com.mikhailkarpov.products.controller;
 
 import com.mikhailkarpov.products.dto.CategoryDto;
 import com.mikhailkarpov.products.controller.mapper.CategoryMapper;
+import com.mikhailkarpov.products.dto.ProductDto;
 import com.mikhailkarpov.products.persistence.entity.Category;
 import com.mikhailkarpov.products.service.CategoryService;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,11 +25,12 @@ public class CategoryController {
     private final CategoryMapper categoryMapper;
 
     @GetMapping("/categories")
-    public List<CategoryDto> findAll(@RequestParam(required = false, defaultValue = "false") Boolean includeSubdirectories) {
+    public List<CategoryDto> findAll(@RequestParam Optional<Boolean> includeSubdirectories) {
+        //todo sorting
 
         log.info("Request for categories, including subcategories = {}", includeSubdirectories);
 
-        return categoryService.findAll(includeSubdirectories)
+        return categoryService.findAll(includeSubdirectories.isPresent() ? includeSubdirectories.get() : false)
                 .stream()
                 .map(categoryMapper::map)
                 .collect(Collectors.toList());
@@ -40,11 +43,10 @@ public class CategoryController {
         log.info("Request to create category '{}'", name);
         Category category = categoryService.createCategory(name);
 
-        URI location = uriComponentsBuilder.path("/categories/{id}").build(category.getId());
+        CategoryDto body = categoryMapper.map(category);
+        URI location = uriComponentsBuilder.path("/categories/{id}").build(body.getId());
 
-        return ResponseEntity
-                .created(location)
-                .body(categoryMapper.map(category));
+        return ResponseEntity.created(location).body(body);
     }
 
     @GetMapping("/categories/{id}")
@@ -59,7 +61,7 @@ public class CategoryController {
     @PutMapping("/categories/{id}")
     public CategoryDto renameCategory(@PathVariable Integer id, @RequestParam String name) {
 
-        log.info("Request for category with id = {}", id);
+        log.info("Request to rename category with id = {} to '{}'", id, name);
         Category category = categoryService.renameCategory(id, name);
 
         return categoryMapper.map(category);
@@ -67,6 +69,7 @@ public class CategoryController {
 
     @GetMapping("/categories/{id}/subcategories")
     public List<CategoryDto> findSubcategoriesByParentId(@PathVariable Integer id) {
+        //todo sorting
 
         log.info("Request for subcategories in category with id = {}", id);
         return categoryService
@@ -84,11 +87,10 @@ public class CategoryController {
         log.info("Request to create subcategory '{}' in category with id = {}", subcategoryName, parentId);
         Category subcategory = categoryService.createSubcategory(parentId, subcategoryName);
 
-        URI location = uriComponentsBuilder.path("/categories/{id}").build(subcategory.getId());
+        CategoryDto body = categoryMapper.map(subcategory);
+        URI location = uriComponentsBuilder.path("/categories/{id}").build(body.getId());
 
-        return ResponseEntity
-                .created(location)
-                .body(categoryMapper.map(subcategory));
+        return ResponseEntity.created(location).body(body);
     }
 
     @PostMapping("/categories/{id}/products")
@@ -106,7 +108,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories/{id}/move")
-    public void moveCategory(@PathVariable Integer id, @RequestParam("destination-id") Integer destinationId) {
+    public void moveCategory(@PathVariable Integer id, @RequestParam("destination") Integer destinationId) {
 
         log.info("Request to move category with id = {} to category with id = {}", id, destinationId);
         categoryService.moveCategory(id, destinationId);

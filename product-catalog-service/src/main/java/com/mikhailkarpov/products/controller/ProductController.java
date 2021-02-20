@@ -43,6 +43,7 @@ public class ProductController {
     public List<ProductDto> findAll(@RequestParam(value = "name", required = false) String name,
                                     @RequestParam(value = "code", required = false) List<String> codes,
                                     @RequestParam(value = "category", required = false) Integer categoryId) {
+        //todo sorting and paging
 
         log.info("Request for products: name={}, codes={}, category_id={}", name, codes, categoryId);
         ProductSpecification specification = new ProductSpecification(name, codes, categoryId);

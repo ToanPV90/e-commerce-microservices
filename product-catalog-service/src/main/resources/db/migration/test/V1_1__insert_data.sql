@@ -10,6 +10,8 @@ INSERT INTO categories(id, name, parent_category_id)
     (5, 'Camera & Photo', 2),
     (6, 'Cell phones & Accessories', 2);
 
+SELECT setval('categories_id_seq', 7);
+
 INSERT INTO products(code, name, description, price, amount)
     VALUES
     ('dell-27', 'Dell 27', 'Dell monitor 27 Inch', 150000, 12),

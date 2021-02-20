@@ -6,6 +6,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.*;
 
+import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.MERGE;
+
 @Entity(name = "Category")
 @Table(name = "categories")
 @Getter
@@ -20,11 +23,11 @@ public class Category {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {PERSIST, MERGE})
     @JoinColumn(name = "parent_category_id")
     private Category parent;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     private Set<Category> subcategories = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)

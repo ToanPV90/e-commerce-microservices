@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Category findById(Integer id) {
 
         return categoryRepository.findById(id).orElseThrow(() -> {
@@ -64,10 +65,10 @@ public class CategoryServiceImpl implements CategoryService {
         if (includeSubcategories) {
             categoryRepository.findAll().forEach(categories::add);
         } else {
-            categoryRepository.findAllByParentId(null).forEach(categories::add);
+            categories = categoryRepository.findAllByParentId(null);
         }
 
-        return categories;
+        return Collections.unmodifiableList(categories);
     }
 
     @Override
