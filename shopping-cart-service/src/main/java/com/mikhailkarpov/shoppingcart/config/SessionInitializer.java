@@ -5,6 +5,6 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
 public class SessionInitializer extends AbstractHttpSessionApplicationInitializer {
 
     public SessionInitializer() {
-        super(RedisConfig.class);
+        super(RedisSessionConfig.class);
     }
 }

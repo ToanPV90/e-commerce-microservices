@@ -3,14 +3,17 @@ package com.mikhailkarpov.shoppingcart.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-public class RedisConfig {
+@EnableRedisHttpSession
+public class RedisSessionConfig {
 
     @Value("${spring.redis.host}")
     @NotBlank
@@ -20,15 +23,11 @@ public class RedisConfig {
     @NotNull
     private Integer port;
 
-    @Value("${spring.redis.password}")
-    private String password;
-
     @Bean
-    public LettuceConnectionFactory lettuceConnectionFactory() {
+    public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
         redisConfig.setHostName(host);
         redisConfig.setPort(port);
-        redisConfig.setPassword(password);
 
         return new LettuceConnectionFactory(redisConfig);
     }
