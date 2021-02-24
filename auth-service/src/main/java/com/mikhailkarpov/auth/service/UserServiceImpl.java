@@ -8,6 +8,7 @@ import com.mikhailkarpov.auth.exception.ResourceNotFoundException;
 import com.mikhailkarpov.auth.repository.AppRoleRepository;
 import com.mikhailkarpov.auth.repository.AppUserRepository;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,7 @@ public class UserServiceImpl implements UserService {
         String username = user.getUsername();
         String password = passwordEncoder.encode(user.getPassword());
 
-        if (userRepository.existsByUsername(username)) {
-            String message = String.format("User with username='%s' already exists", username);
-            log.warn(message);
-            throw new ResourceAlreadyExistsException(message);
-        }
+        throwIfExistsByUsername(username);
 
         Set<AppRole> roles = getOrCreateRoles(user.getRoles());
 
@@ -45,12 +42,6 @@ public class UserServiceImpl implements UserService {
         log.info("Creating user: {}", created);
 
         return mapFromEntity(created);
-    }
-
-    private Set<AppRole> getOrCreateRoles(Set<String> rolesNames) {
-        return rolesNames.stream()
-                .map(roleName -> roleRepository.findByName(roleName).orElse(new AppRole(roleName)))
-                .collect(Collectors.toSet());
     }
 
     @Override
@@ -67,6 +58,50 @@ public class UserServiceImpl implements UserService {
         log.info("Found user: {}", user);
 
         return mapFromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDto updateUser(UUID id, UserDto update) {
+
+        AppUser user = getUserOrElseThrow(id);
+
+        String username = update.getUsername();
+        if (!username.equals(user.getUsername())) {
+            throwIfExistsByUsername(username);
+            user.setUsername(username);
+        }
+
+        String encodedPassword = passwordEncoder.encode(update.getPassword());
+        user.setPassword(encodedPassword);
+
+        Set<AppRole> roles = getOrCreateRoles(update.getRoles());
+        user.setRoles(roles);
+
+        return mapFromEntity(user);
+    }
+
+    /** HELPERS */
+
+    private void throwIfExistsByUsername(String username) {
+        if (userRepository.existsByUsername(username)) {
+            String message = String.format("User with username='%s' already exists", username);
+            log.warn(message);
+            throw new ResourceAlreadyExistsException(message);
+        }
+    }
+
+    private Set<AppRole> getOrCreateRoles(Set<String> rolesNames) {
+        return rolesNames.stream()
+                .map(roleName -> roleRepository.findByName(roleName).orElse(new AppRole(roleName)))
+                .collect(Collectors.toSet());
+    }
+
+    private AppUser getUserOrElseThrow(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> {
+            String message = String.format("User with id=%s not found", id);
+            return new ResourceNotFoundException(message);
+        });
     }
 
     private UserDto mapFromEntity(AppUser user) {

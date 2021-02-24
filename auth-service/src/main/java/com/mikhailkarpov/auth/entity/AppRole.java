@@ -1,18 +1,15 @@
 package com.mikhailkarpov.auth.entity;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity(name = "AppRole")
 @Table(name = "roles")
 public class AppRole {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @SequenceGenerator(name = "roles_id_seq", sequenceName = "roles_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_id_seq")
+    private Integer id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -25,7 +22,7 @@ public class AppRole {
         this.name = name;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

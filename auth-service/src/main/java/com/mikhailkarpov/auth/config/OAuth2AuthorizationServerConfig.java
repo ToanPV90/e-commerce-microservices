@@ -8,12 +8,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
+import javax.sql.DataSource;
+
 @Configuration
+@EnableAuthorizationServer
 public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     @Autowired
@@ -44,27 +48,17 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
                     .secret(passwordEncoder.encode("customer-service-secret"))
                     .authorizedGrantTypes("client_credentials")
                     .scopes("server")
+                    .authorities("user:write")
                     .and()
                 .withClient("product-catalog-service")
                     .secret(passwordEncoder.encode("product-catalog-service-secret"))
                     .authorizedGrantTypes("client_credentials")
                     .scopes("server")
                     .and()
-                .withClient("shopping-cart-service")
-                    .secret(passwordEncoder.encode("shopping-cart-service-secret"))
-                    .authorizedGrantTypes("client_credentials")
-                    .scopes("server")
-                    .and()
                 .withClient("order-service")
                     .secret(passwordEncoder.encode("order-service-secret"))
                     .authorizedGrantTypes("client_credentials")
-                    .scopes("server")
-                    .and()
-                .withClient("admin")
-                    .secret(passwordEncoder.encode("admin-secret"))
-                    .authorizedGrantTypes("client_credentials")
-                    .authorities("ROLE_ADMIN")
-                    .scopes("admin");
+                    .scopes("server");
         //@formatter:on
     }
 

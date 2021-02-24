@@ -2,10 +2,7 @@ package com.mikhailkarpov.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -15,8 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class UserDto {
 
@@ -33,6 +29,18 @@ public class UserDto {
     @NotNull
     @NotEmpty
     private Set<String> roles;
+
+
+    public UserDto(String username, String password, Set<String> roles) {
+        this(UUID.randomUUID(), username, password, roles);
+    }
+
+    public UserDto(UUID id, String username, String password, Set<String> roles) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
 
     @JsonIgnore
     public String getPassword() {
