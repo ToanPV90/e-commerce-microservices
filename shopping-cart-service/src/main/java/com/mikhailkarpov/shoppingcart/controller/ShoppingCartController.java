@@ -1,7 +1,8 @@
 package com.mikhailkarpov.shoppingcart.controller;
 
-import com.mikhailkarpov.shoppingcart.dto.ApiErrorResponse;
 import com.mikhailkarpov.shoppingcart.dto.ShoppingCart;
+import com.mikhailkarpov.shoppingcart.dto.ShoppingCartItem;
+import com.mikhailkarpov.shoppingcart.service.ShoppingCartService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,68 +10,79 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
 @AllArgsConstructor
 public class ShoppingCartController {
 
-    private static final String SHOPPING_CART_ATTRIBUTE = "cart";
+    //todo return products lists
+
+    private final ShoppingCartService shoppingCartService;
 
     @GetMapping("/shopping-cart")
-    public ShoppingCart findCart(HttpSession session) {
+    public ShoppingCart findCart(@CookieValue(name = "cartId", required = false) String cartId,
+                                 HttpSession session,
+                                 HttpServletResponse response) {
 
-        log.info("Session_id={}: request for a shopping cart", session.getId());
-
-        ShoppingCart cart = (ShoppingCart) session.getAttribute(SHOPPING_CART_ATTRIBUTE);
-
-        if (cart == null) {
-            cart = new ShoppingCart();
-            session.setAttribute(SHOPPING_CART_ATTRIBUTE, cart);
+        if (cartId == null) {
+            cartId = session.getId();
         }
+        log.info("Request for a shopping cart by cart_id={}", cartId);
 
-        return cart;
+        ShoppingCart shoppingCart = shoppingCartService.findCartById(cartId);
+        addCartCookie(response, cartId);
+
+        return shoppingCart;
     }
 
     @PostMapping("/shopping-cart")
-    public ResponseEntity<Object> addItem(@Valid @RequestBody ShoppingCart cart,
-                                          HttpSession session,
-                                          UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ShoppingCart> createCart(@CookieValue(name = "cartId", required = false) String cartId,
+                                                   @Valid @RequestBody List<ShoppingCartItem> items,
+                                                   HttpSession session,
+                                                   HttpServletResponse response,
+                                                   UriComponentsBuilder uriComponentsBuilder) {
 
-        log.info("Session_id={}: request to create {}", session.getId(), cart);
-
-        ShoppingCart existingCart = (ShoppingCart) session.getAttribute(SHOPPING_CART_ATTRIBUTE);
-
-        if (existingCart != null) {
-            ApiErrorResponse body = new ApiErrorResponse("Shopping cart already exist");
-            return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        if (cartId == null) {
+            cartId = session.getId();
         }
+        log.info("Request to save a shopping cart: cartId={}, items={}", cartId, items);
 
-        session.setAttribute(SHOPPING_CART_ATTRIBUTE, cart);
+        ShoppingCart shoppingCart = shoppingCartService.saveCart(cartId, items);
+        addCartCookie(response, cartId);
 
         return ResponseEntity
                 .created(uriComponentsBuilder.path("/shopping-cart").build().toUri())
-                .body(cart);
-    }
-
-    @PutMapping("/shopping-cart")
-    public ShoppingCart updateCart(@Valid @RequestBody ShoppingCart update,
-                                   HttpSession session) {
-
-        log.info("Session_id={}: request to update {}", session.getId(), update);
-
-        session.setAttribute(SHOPPING_CART_ATTRIBUTE, update);
-        return update;
+                .body(shoppingCart);
     }
 
     @DeleteMapping("/shopping-cart")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(HttpSession session) {
+    public void clearCart(@CookieValue(value = "cartId", required = false) String cartId,
+                          HttpServletResponse response) {
 
-        log.info("Session_id={}: request to clear shopping cart", session.getId());
+        log.info("Request to delete a shopping cart with id={}", cartId);
+        if (cartId != null) {
+            shoppingCartService.deleteCart(cartId);
 
-        session.removeAttribute(SHOPPING_CART_ATTRIBUTE);
+            Cookie cookie = new Cookie("cartId", cartId);
+            cookie.setMaxAge(-1);
+
+            response.addCookie(cookie);
+        }
+    }
+
+    public void addCartCookie(HttpServletResponse response, String cartId) {
+
+        Cookie cookie = new Cookie("cartId", cartId);
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+
+        log.info("Adding {}", cookie);
+        response.addCookie(cookie);
     }
 }
