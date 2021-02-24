@@ -10,7 +10,7 @@ public interface ShoppingCartService {
 
     void deleteCart(String cartId);
 
-    ShoppingCart findCartById(String cartId);
+    Optional<ShoppingCart> findCartById(String cartId);
 
     ShoppingCart saveCart(String cartId, List<ShoppingCartItem> items);
 }

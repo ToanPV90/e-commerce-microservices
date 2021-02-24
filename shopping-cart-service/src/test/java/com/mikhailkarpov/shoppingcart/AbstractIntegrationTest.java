@@ -1,13 +1,15 @@
 package com.mikhailkarpov.shoppingcart;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 
 public class AbstractIntegrationTest {
 
-    static final GenericContainer redis;
-    static final GenericContainer eureka;
+    public static final GenericContainer redis;
+    public static final GenericContainer eureka;
 
     static {
         redis = new GenericContainer("redis:6-alpine")
@@ -18,8 +20,6 @@ public class AbstractIntegrationTest {
                 .withExposedPorts(8761)
                 .withReuse(true);
 
-        redis.start();
-        eureka.start();
     }
 
     @DynamicPropertySource
@@ -31,5 +31,11 @@ public class AbstractIntegrationTest {
 
     private static String getDefaultZone() {
         return String.format("http://%s:%d/eureka/", eureka.getContainerIpAddress(), eureka.getFirstMappedPort());
+    }
+
+    @BeforeAll
+    static void startContainers() {
+        redis.start();
+        eureka.start();
     }
 }

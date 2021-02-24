@@ -14,6 +14,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -35,7 +36,10 @@ public class ShoppingCartController {
         }
         log.info("Request for a shopping cart by cart_id={}", cartId);
 
-        ShoppingCart shoppingCart = shoppingCartService.findCartById(cartId);
+        ShoppingCart shoppingCart = shoppingCartService
+                .findCartById(cartId)
+                .orElse(new ShoppingCart(cartId, Collections.emptyList()));
+
         addCartCookie(response, cartId);
 
         return shoppingCart;

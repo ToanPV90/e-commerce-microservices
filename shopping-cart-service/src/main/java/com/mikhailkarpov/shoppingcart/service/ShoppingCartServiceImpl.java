@@ -5,11 +5,15 @@ import com.mikhailkarpov.shoppingcart.dto.ShoppingCartItem;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,6 +26,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final RedisTemplate<String, ShoppingCart> redisTemplate;
 
     @Override
+    @CachePut(value = "shopping-cart", key = "#cartId", unless = "#root.args[1].isEmpty()")
     public ShoppingCart saveCart(String cartId, List<ShoppingCartItem> items) {
 
         ShoppingCart shoppingCart = new ShoppingCart(cartId, items);
@@ -30,18 +35,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @CacheEvict(value = "shopping-cart", key = "#cartId")
     public void deleteCart(String cartId) {
+
         redisTemplate.delete(cartId);
     }
 
     @Override
-    public ShoppingCart findCartById(String cartId) {
+    @Cacheable(value = "shopping-cart", key = "#cartId", unless = "#result == null")
+    public Optional<ShoppingCart> findCartById(String cartId) {
+
         ShoppingCart shoppingCart = redisTemplate.opsForValue().get(cartId);
-
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(cartId, Collections.emptyList());
-        }
-
-        return shoppingCart;
+        return Optional.ofNullable(shoppingCart);
     }
 }

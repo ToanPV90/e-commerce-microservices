@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class ShoppingCartControllerIT extends AbstractIntegrationTest {
+class ShoppingCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     private final String URL = "/shopping-cart";
 
