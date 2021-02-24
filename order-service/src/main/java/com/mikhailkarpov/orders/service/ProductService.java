@@ -14,6 +14,6 @@ import java.util.List;
         fallback = ProductServiceFallback.class)
 public interface ProductService {
 
-    @GetMapping("/products/list")
-    List<ProductDto> getProductsByCodes(@RequestParam List<String> code);
+    @GetMapping("/products")
+    List<ProductDto> getProductsByCodes(@RequestParam("code") List<String> codes);
 }

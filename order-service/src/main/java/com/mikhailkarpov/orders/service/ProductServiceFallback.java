@@ -12,7 +12,7 @@ import java.util.List;
 public class ProductServiceFallback implements ProductService {
 
     @Override
-    public List<ProductDto> getProductsByCodes(List<String> code) {
+    public List<ProductDto> getProductsByCodes(List<String> codes) {
         log.warn("Product service failed. Calling fallback and returning empty products list");
         return Collections.emptyList();
     }
