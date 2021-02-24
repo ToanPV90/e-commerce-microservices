@@ -43,7 +43,6 @@ public class RedisCacheConfig {
 
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(ShoppingCart.class));
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ShoppingCart.class));
         redisTemplate.afterPropertiesSet();
 

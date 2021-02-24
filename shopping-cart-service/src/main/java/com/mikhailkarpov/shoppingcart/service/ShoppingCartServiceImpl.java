@@ -11,7 +11,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +18,6 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class ShoppingCartServiceImpl implements ShoppingCartService {
-
-    //todo add cacheable annotations
 
     @Autowired
     private final RedisTemplate<String, ShoppingCart> redisTemplate;

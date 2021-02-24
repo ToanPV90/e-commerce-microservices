@@ -37,12 +37,6 @@
             <artifactId>lettuce-core</artifactId>
         </dependency>
 
-        <!-- Security -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
         <!-- Devtools -->
         <dependency>
             <groupId>org.projectlombok</groupId>
