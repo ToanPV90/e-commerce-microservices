@@ -1,6 +1,7 @@
 package com.mikhailkarpov.auth.config;
 
 import com.mikhailkarpov.auth.dto.ApiErrorResponse;
+import com.mikhailkarpov.auth.exception.BadRequestException;
 import com.mikhailkarpov.auth.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.auth.exception.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -10,8 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -28,4 +28,9 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         return handleExceptionInternal(ex, response, new HttpHeaders(), CONFLICT, request);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    protected ResponseEntity<Object> handleBadRequest(BadRequestException ex, WebRequest request) {
+        ApiErrorResponse response = new ApiErrorResponse(ex);
+        return handleExceptionInternal(ex, response, new HttpHeaders(), BAD_REQUEST, request);
+    }
 }

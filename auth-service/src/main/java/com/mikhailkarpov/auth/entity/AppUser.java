@@ -1,11 +1,13 @@
 package com.mikhailkarpov.auth.entity;
 
 import javax.persistence.*;
+import javax.ws.rs.DELETE;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.*;
 
@@ -23,7 +25,7 @@ public class AppUser {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToMany(fetch = LAZY, cascade = PERSIST)
+    @ManyToMany(fetch = LAZY, cascade = {PERSIST, MERGE})
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_fk"),

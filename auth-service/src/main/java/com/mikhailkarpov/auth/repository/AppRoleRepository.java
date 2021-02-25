@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface AppRoleRepository extends CrudRepository<AppRole, Long> {
+public interface AppRoleRepository extends CrudRepository<AppRole, Integer> {
 
     Optional<AppRole> findByName(String name);
 }
