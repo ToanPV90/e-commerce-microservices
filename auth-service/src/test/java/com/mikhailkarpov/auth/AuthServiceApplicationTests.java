@@ -1,6 +1,5 @@
-package com.mikhailkarpov.authservice;
+package com.mikhailkarpov.auth;
 
-import com.mikhailkarpov.auth.AuthServiceApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

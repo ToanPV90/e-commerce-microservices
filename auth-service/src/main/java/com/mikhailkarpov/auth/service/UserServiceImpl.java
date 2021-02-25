@@ -1,8 +1,10 @@
 package com.mikhailkarpov.auth.service;
 
+import com.mikhailkarpov.auth.dto.CreateUpdateUserRequest;
 import com.mikhailkarpov.auth.dto.UserDto;
 import com.mikhailkarpov.auth.entity.AppRole;
 import com.mikhailkarpov.auth.entity.AppUser;
+import com.mikhailkarpov.auth.exception.BadRequestException;
 import com.mikhailkarpov.auth.exception.ResourceAlreadyExistsException;
 import com.mikhailkarpov.auth.exception.ResourceNotFoundException;
 import com.mikhailkarpov.auth.repository.AppRoleRepository;
@@ -30,13 +32,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto createUser(UserDto user) {
-        String username = user.getUsername();
-        String password = passwordEncoder.encode(user.getPassword());
+    public UserDto createUser(CreateUpdateUserRequest request) {
+        String username = request.getUsername();
+        String password = passwordEncoder.encode(request.getPassword());
 
         throwIfExistsByUsername(username);
 
-        Set<AppRole> roles = getOrCreateRoles(user.getRoles());
+        Set<AppRole> roles = getRoleOrElseThrow(request.getRoles());
 
         AppUser created = userRepository.save(new AppUser(username, password, roles));
         log.info("Creating user: {}", created);
@@ -62,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto updateUser(UUID id, UserDto update) {
+    public UserDto updateUser(UUID id, CreateUpdateUserRequest update) {
 
         AppUser user = getUserOrElseThrow(id);
 
@@ -75,7 +77,7 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(update.getPassword());
         user.setPassword(encodedPassword);
 
-        Set<AppRole> roles = getOrCreateRoles(update.getRoles());
+        Set<AppRole> roles = getRoleOrElseThrow(update.getRoles());
         user.setRoles(roles);
 
         return mapFromEntity(user);
@@ -91,9 +93,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private Set<AppRole> getOrCreateRoles(Set<String> rolesNames) {
+    private Set<AppRole> getRoleOrElseThrow(Set<String> rolesNames) {
         return rolesNames.stream()
-                .map(roleName -> roleRepository.findByName(roleName).orElse(new AppRole(roleName)))
+                .map(roleName -> roleRepository.findByName(roleName).orElseThrow(() -> {
+                    String message = String.format("Role '%s' not found", roleName);
+                    return new ResourceNotFoundException(message);
+                }))
                 .collect(Collectors.toSet());
     }
 
@@ -108,7 +113,6 @@ public class UserServiceImpl implements UserService {
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .password(user.getPassword())
                 .roles(user.getRoles().stream().map(AppRole::getName).collect(Collectors.toSet()))
                 .build();
     }

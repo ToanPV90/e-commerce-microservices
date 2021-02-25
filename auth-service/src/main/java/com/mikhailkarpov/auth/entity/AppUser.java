@@ -1,6 +1,7 @@
 package com.mikhailkarpov.auth.entity;
 
 import javax.persistence.*;
+import javax.ws.rs.DELETE;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

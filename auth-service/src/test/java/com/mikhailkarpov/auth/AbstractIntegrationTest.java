@@ -1,4 +1,4 @@
-package com.mikhailkarpov.authservice;
+package com.mikhailkarpov.auth;
 
 import org.junit.jupiter.api.AfterAll;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -27,7 +27,7 @@ public class AbstractIntegrationTest {
 
     @DynamicPropertySource
     static void configEureka(DynamicPropertyRegistry registry) {
-        registry.add("eureka.instance.enabled", AbstractIntegrationTest::disableEureka);
+        registry.add("eureka.client.enabled", AbstractIntegrationTest::disableEureka);
     }
 
     private static boolean disableEureka() {

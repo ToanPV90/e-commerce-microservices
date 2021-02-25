@@ -1,5 +1,6 @@
 package com.mikhailkarpov.auth.controller;
 
+import com.mikhailkarpov.auth.dto.CreateUpdateUserRequest;
 import com.mikhailkarpov.auth.dto.UserDto;
 import com.mikhailkarpov.auth.exception.BadRequestException;
 import com.mikhailkarpov.auth.service.UserService;
@@ -24,11 +25,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user,
-                                              UriComponentsBuilder uriComponentsBuilder) {
-        log.info("Request to create user: {}", user);
-        UserDto created = userService.createUser(user);
+    @PreAuthorize("hasAuthority('user:write') or hasRole('ADMIN')")
+    public ResponseEntity<UserDto> registerUser(@Valid @RequestBody CreateUpdateUserRequest request,
+                                                UriComponentsBuilder uriComponentsBuilder) {
+
+        log.info("Request to create user: {}", request);
+        UserDto created = userService.createUser(request);
 
         return ResponseEntity
                 .created(uriComponentsBuilder.path("/users/{id}").build(created.getId()))
@@ -36,28 +38,17 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Principal getCurrentUser(@AuthenticationPrincipal Principal principal) {
+
         log.info("Request for a current user: ", principal);
         return principal;
     }
 
     @GetMapping("/{id}")
     public UserDto findUserById(@PathVariable UUID id) {
+
         log.info("Request for a user with id={}", id);
         return userService.findUserById(id);
-    }
-
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('user:write')")
-    public UserDto updateUser(@PathVariable UUID id, @Valid @RequestBody UserDto update) {
-        log.info("Request to update user with id={}: {}", id, update);
-
-        if (!id.equals(update.getId())) {
-            String message = String.format("URI /users/{} don't match user id={}", id, update.getId());
-            throw new BadRequestException(message);
-        }
-
-        return userService.updateUser(id, update);
     }
 }
